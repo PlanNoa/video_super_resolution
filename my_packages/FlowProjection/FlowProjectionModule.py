@@ -9,7 +9,8 @@ class FlowProjectionModule(Module):
         super(FlowProjectionModule, self).__init__()
         self.net = FlowNet2().cuda()
         self.cropper = StaticCenterCrop(image_size, render_size)
-
+        self.dict = torch.load("pretrained/FlowNet2_checkpoint.pth.tar")
+        self.net.load_state_dict(self.dict["state_dict"])
 
     def forward(self, input1, input2):
         images = [input1, input2]
