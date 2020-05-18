@@ -138,3 +138,7 @@ class DAVIS(data.Dataset):
         th_masks = torch.unsqueeze(torch.from_numpy(np.transpose(pad_masks, (3, 0, 1, 2)).copy()).long(), 0)
 
         return th_frames, th_masks, info
+
+class readfromfile:
+    def __init__(self):
+        return
