@@ -51,10 +51,9 @@ class VOSProjectionModule(Module):
         all_F, all_M = all_F[0], all_M[0]
         all_E = Infer_MO(all_F, all_M, 2, num_objects, self.model, scales=[0.5, 0.75, 1.0])
 
-        for f in range(2):
-            E = all_E[0,:,f].numpy()
-            E = ToLabel(E)
-            (lh, uh), (lw, uw) = pad
-            E = E[lh[0]:-uh[0], lw[0]:-uw[0]]
+        E = all_E[0,:,0].numpy()
+        E = ToLabel(E)
+        (lh, uh), (lw, uw) = pad
+        E = E[lh[0]:-uh[0], lw[0]:-uw[0]]
 
         return E
