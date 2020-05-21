@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torchvision.models.vgg import vgg16
+import numpy as np
 
 # need to change for polygon shape
 class SR_loss(nn.Module):
@@ -45,7 +46,8 @@ class Flow_loss(nn.Module):
         super(Flow_loss, self).__init__()
         self.mse_loss = nn.MSELoss()
 
-    def forward(self, output1, output2, output3):
-        flow_loss_1 = self.mse_loss(output1, output2)
-        flow_loss_2 = self.mse_loss(output2, output3)
-        return (flow_loss_1 + flow_loss_2)/2
+    def forward(self, outputs):
+        flow_loss = []
+        for i in range(len(outputs) - 1):
+            flow_loss.append(self.mse_loss(outputs[i], outputs[i+1]))
+        return np.mean(outputs)
