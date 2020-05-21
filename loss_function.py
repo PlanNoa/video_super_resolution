@@ -45,7 +45,7 @@ class Flow_loss(nn.Module):
         super(Flow_loss, self).__init__()
         self.mse_loss = nn.MSELoss()
 
-    def forward(self, output1, output2, HR1):
+    def forward(self, output1, output2, output3):
         flow_loss_1 = self.mse_loss(output1, output2)
-        flow_loss_2 = self.mse_loss(output2, HR1)
+        flow_loss_2 = self.mse_loss(output2, output3)
         return (flow_loss_1 + flow_loss_2)/2
