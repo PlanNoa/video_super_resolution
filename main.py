@@ -1,5 +1,4 @@
-from my_packages.SuperResolution import SuperResolutionModule
-from my_packages.VOSProjection import VOSProjectionModule
+from network.video_super_resolution import VSR
 from tensorboardX import SummaryWriter
 from utils.frame_utils import *
 from utils.flow_utils import *
@@ -61,7 +60,7 @@ if __name__ == '__main__':
             args.inference_dir = "{}/inference".format(args.save)
 
     with tools.TimerBlock("Building {} model".format(args.model_name)) as block:
-        SRmodel = SuperResolutionModule()
+        SRmodel = VSR()
         if args.cuda and args.number_gpus > 1:
             block.log('Parallelizing')
             SRmodel = nn.parallel.DataParallel(SRmodel, device_ids=list(range(args.number_gpus)))
@@ -70,7 +69,7 @@ if __name__ == '__main__':
 
         elif args.cuda and args.number_gpus > 0:
             block.log('Initializing CUDA')
-            SRmodel = SRmodel.cuda
+            SRmodel = SRmodel.cuda()
 
         else:
             block.log("CUDA not being used")
