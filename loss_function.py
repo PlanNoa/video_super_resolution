@@ -2,11 +2,12 @@ import torch
 from torch import nn
 from torchvision.models.vgg import vgg16
 import numpy as np
+from my_packages.VOSProjection import VOSProjectionModule
 
 # need to change for polygon shape
-class SR_loss(nn.Module):
+class _SR_loss(nn.Module):
     def __init__(self):
-        super(SR_loss, self).__init__()
+        super(_SR_loss, self).__init__()
         vgg = vgg16(pretrained=True)
         loss_network = nn.Sequential(*list(vgg.features)[:31]).eval()
         for param in loss_network.parameters():
@@ -41,9 +42,9 @@ class TVLoss(nn.Module):
     def tensor_size(t):
         return t.size()[1] * t.size()[2] * t.size()[3]
 
-class Flow_loss(nn.Module):
+class _Flow_loss(nn.Module):
     def __init__(self):
-        super(Flow_loss, self).__init__()
+        super(_Flow_loss, self).__init__()
         self.mse_loss = nn.MSELoss()
 
     def forward(self, outputs):
@@ -51,3 +52,16 @@ class Flow_loss(nn.Module):
         for i in range(len(outputs) - 1):
             flow_loss.append(self.mse_loss(outputs[i], outputs[i+1]))
         return np.mean(outputs)
+
+class _loss4object(nn.Module):
+    def __iter__(self):
+        super(_loss4object, self).__init__()
+        self.VOS = VOSProjectionModule()
+
+    def forward(self, output, target=None):
+        if target == None:
+            # return object-masked outputs
+            return output
+        else:
+            # return object-masked image
+            return output, target
