@@ -17,7 +17,8 @@ class VOSProjectionModule(Module):
 
         mask = np.array(input1.convert("P"))
         # need to get moving object number from flownet module
-        num_objects = np.max(mask)
+        # num_objects = np.max(mask)
+        num_objects = 5
         shape = np.shape(mask)
 
         raw_frames = np.empty((2,)+shape+(3,), dtype=np.float32)

@@ -1,5 +1,5 @@
 import torch
-import torch.nn as  nn
+import numpy as np
 from my_packages.SuperResolution import SuperResolutionModule
 from loss_function import _SR_loss, _Flow_loss, _loss4object
 
@@ -20,7 +20,7 @@ class VSR(torch.nn.Module):
 
     def loss_calculate(self, output, target, outputs):
         genSR_loss = self.SR_loss(output, target)
-        objSR_loss = self.SR_loss(self.loss4object(output, target))
+        objSR_loss = np.mean(self.SR_loss(i, j) for i, j in self.loss4object(output, target))
         Flow_loss = self.Flow_loss(outputs)
         objFlow_loss = self.Flow_loss(self.loss4object(outputs))
         pass
