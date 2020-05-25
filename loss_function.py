@@ -4,7 +4,6 @@ from torchvision.models.vgg import vgg16
 import numpy as np
 from my_packages.VOSProjection import VOSProjectionModule
 
-# need to change for polygon shape
 class _SR_loss(nn.Module):
     def __init__(self):
         super(_SR_loss, self).__init__()
