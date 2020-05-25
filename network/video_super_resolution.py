@@ -11,14 +11,14 @@ class VSR(torch.nn.Module):
         self.Flow_loss = _Flow_loss()
         self.loss4object = _loss4object()
 
-    def forward(self, input1, input2, input3, target, outputs):
-        output = self.model(input1, input2, input3)
+    def forward(self, data, target, outputs):
+        output = self.model(data[0], data[1], data[2])
         loss = self.loss_calculate(output, target, outputs)
-        return self.model(input1, input2, input3), loss
+        return output, loss
 
     def loss_calculate(self, output, target, outputs):
         genSR_loss = self.SR_loss(output, target)
         objSR_loss = np.mean(self.SR_loss(i, j) for i, j in self.loss4object(output, target))
         Flow_loss = self.Flow_loss(outputs)
         objFlow_loss = self.Flow_loss(self.loss4object(outputs))
-        return (genSR_loss + objSR_loss + Flow_loss + objFlow_loss)/4
+        return [genSR_loss, objSR_loss, Flow_loss, objFlow_loss]
