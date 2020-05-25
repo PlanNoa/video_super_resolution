@@ -4,6 +4,7 @@ from .inference import *
 from .model import RGMP
 import numpy as np
 import torch
+from utils.object_utils import *
 
 class VOSProjectionModule(Module):
     def __init__(self):
@@ -12,13 +13,11 @@ class VOSProjectionModule(Module):
         self.model.load_state_dict(torch.load('pretrained/weights.pth'))
         self.model.eval()
 
-    def preprocess(self, input1, input2):
+    def preprocess(self, input1, input2, optical_flow):
         imgs = [input1, input2]
 
         mask = np.array(input1.convert("P"))
-        # need to get moving object number from flownet module
-        # num_objects = np.max(mask)
-        num_objects = 5
+        num_objects = count_objects(optical_flow)
         shape = np.shape(mask)
 
         raw_frames = np.empty((2,)+shape+(3,), dtype=np.float32)
