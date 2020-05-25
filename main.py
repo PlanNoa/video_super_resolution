@@ -81,7 +81,7 @@ if __name__ == '__main__':
             checkpoint = torch.load(args.resume)
             if not args.inference:
                 args.start_epoch = checkpoint['epoch']
-            SRmodel.load_state_dict(checkpoint['state_dict'])
+            SRmodel.model.load_state_dict(checkpoint['state_dict'])
             block.log("Loaded checkpoint '{}' (at epoch {})".format(args.resume, checkpoint['epoch']))
 
         elif args.resume and args.inference:
@@ -112,6 +112,5 @@ if __name__ == '__main__':
 
     def inference():
         return
-
 
 '''need to make dataset util and dataloader.'''
