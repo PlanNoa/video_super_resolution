@@ -21,5 +21,5 @@
 - low_resolution function on frame_utils.py
 - define new way to calculate flow-loss
 - Inference function on main.py
-- outputs problem in main.py-128 line
+- outputs problem in main.py-128 line(clear)
 - etc..
