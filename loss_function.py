@@ -57,19 +57,19 @@ class _loss4object(nn.Module):
         super(_loss4object, self).__init__()
         self.VOS = VOSProjectionModule()
 
-    def forward(self, outputs, target=None):
+    def forward(self, frames, target=None):
         if target != None:
             # for SRloss
-            obj_segmentation = self.VOS(outputs[0], outputs[1])
+            obj_segmentation = self.VOS(frames[0], frames[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
             masks = [obj_segmentation==i for i in range(num_objects)]
-            masked = [(np.bitwise_and(outputs[1], mask), np.bitwise_and(target, mask)) for mask in masks]
+            masked = [(np.bitwise_and(frames[1], mask), np.bitwise_and(target, mask)) for mask in masks]
             return masked
 
         else:
             # for Flowloss
-            obj_segmentation = self.VOS(outputs[0], outputs[1])
+            obj_segmentation = self.VOS(frames[0], frames[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
             masks = [obj_segmentation==i for i in range(num_objects)]
-            masked_outputs = [[np.bitwise_and(output, mask) for output in outputs] for mask in masks]
+            masked_outputs = [[np.bitwise_and(output, mask) for output in frames] for mask in masks]
             return masked_outputs

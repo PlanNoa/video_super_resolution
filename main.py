@@ -125,7 +125,6 @@ if __name__ == '__main__':
 
             optimizer.zero_grad() if not is_validate else None
             output, losses = model(data, target)
-            '''need to put outputs!!'''
             loss_val = torch.mean(losses)
             total_loss += loss_val.item()
 
