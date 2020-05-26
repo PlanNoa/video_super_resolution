@@ -19,7 +19,6 @@
 - Main VSR model programming
 - count_object function on object_utils.py
 - low_resolution function on frame_utils.py
-- define new way to calculate flow-loss
+- *define new way to calculate flow-loss*
 - Inference function on main.py
-- outputs problem in main.py-128 line(clear)
 - etc..

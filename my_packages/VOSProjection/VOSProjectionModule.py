@@ -13,11 +13,11 @@ class VOSProjectionModule(Module):
         self.model.load_state_dict(torch.load('pretrained/weights.pth'))
         self.model.eval()
 
-    def preprocess(self, input1, input2, optical_flow):
+    def preprocess(self, input1, input2, optical_flow=None):
         imgs = [input1, input2]
 
         mask = np.array(input1.convert("P"))
-        num_objects = count_objects(optical_flow)
+        num_objects = count_objects(optical_flow) if optical_flow else 10
         shape = np.shape(mask)
 
         raw_frames = np.empty((2,)+shape+(3,), dtype=np.float32)
