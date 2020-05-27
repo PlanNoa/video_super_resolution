@@ -2,7 +2,7 @@
 
 ### Related Repositories
 - [Flownet2](https://github.com/NVIDIA/flownet2-pytorch)
-- [MVDepthmap](https://github.com/HKUST-Aerial-Robotics/MVDepthNet)
+- [MVDepthNet](https://github.com/HKUST-Aerial-Robotics/MVDepthNet)
 - [RGMP](https://github.com/seoungwugoh/RGMP)
 
 ### Main Goal
