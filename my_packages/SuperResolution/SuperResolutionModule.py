@@ -10,9 +10,11 @@ class SuperResolutionModule(Module):
         self.FlowModule = FlowProjectionModule()
         self.DepthModule = DepthProjectionModule()
 
-    def forward(self, input1, input2, input3):
-        optical_flow = [self.FlowModule(input1, input2),
-                        self.FlowModule(input2, input3)]
-        depth_map = [self.DepthModule(input1, input2),
-                     self.DepthModule(input2, input3)]
+    def forward(self, input):
+        optical_flow = [self.FlowModule(input[0], input[1]),
+                        self.FlowModule(input[1], input[2])]
+        depth_map = [self.DepthModule(input[0], input[1]),
+                     self.DepthModule(input[1], input[2])]
+
+
         return

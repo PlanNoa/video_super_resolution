@@ -117,20 +117,21 @@ if __name__ == '__main__':
                             total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1,
                             leave=True, position=offset, desc=title)
 
-        for batch_idx, data in enumerate(progress):
+        for batch_idx, datas in enumerate(progress):
 
             data, target = [torch.tensor(list(map(low_resolution, d))) for d in data], [torch.tensor(t[1]) for t in data]
             if args.cuda and args.number_gpus == 1:
                 data, target = [d.cuda for d in data], [t.cuda for t in target]
 
-            optimizer.zero_grad() if not is_validate else None
-            output, losses = model(data, target)
-            loss_val = torch.mean(losses)
-            total_loss += loss_val.item()
+            for x, y in zip(data, target):
+                optimizer.zero_grad() if not is_validate else None
+                output, losses = model(x, y)
+                loss_val = torch.mean(losses)
+                total_loss += loss_val.item()
 
-            if not is_validate:
-                loss_val.backward()
-                optimizer.step()
+                if not is_validate:
+                    loss_val.backward()
+                    optimizer.step()
 
             title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
             progress.set_description(title)

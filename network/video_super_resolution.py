@@ -12,7 +12,7 @@ class VSR(torch.nn.Module):
         self.loss4object = _loss4object()
 
     def forward(self, data, target, train=True):
-        output = self.model(data[0], data[1], data[2])
+        output = self.model(data)
         frames = data.copy()
         frames[1] = output
         loss = self.loss_calculate(output, target, frames) if train else None
