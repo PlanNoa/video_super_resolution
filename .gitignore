@@ -1,5 +1,5 @@
 pretrained/
 .gitignore
 .idae/
-__pychace__/
+__pycache__/
 .pcy
