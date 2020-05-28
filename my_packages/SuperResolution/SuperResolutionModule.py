@@ -7,8 +7,8 @@ from ..FlowProjection.FlowProjectionModule import FlowProjectionModule
 class SuperResolutionModule(Module):
     def __init__(self):
         super(SuperResolutionModule, self).__init__()
-        self.FlowModule = FlowProjectionModule()
-        self.DepthModule = DepthProjectionModule()
+        self.FlowModule = FlowProjectionModule().eval()
+        self.DepthModule = DepthProjectionModule().eval()
 
     def forward(self, input):
         optical_flow = [self.FlowModule(input[0], input[1]),

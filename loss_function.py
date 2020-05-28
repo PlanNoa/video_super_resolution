@@ -45,12 +45,15 @@ class _Flow_loss(nn.Module):
     def __init__(self):
         super(_Flow_loss, self).__init__()
         self.mse_loss = nn.MSELoss()
+        self.SR_loss = _SR_loss()
 
     def forward(self, outputs):
         flow_loss = []
         for i in range(len(outputs) - 1):
-            flow_loss.append(self.mse_loss(outputs[i], outputs[i+1]))
-        return np.mean(outputs)
+            '''need to test which one is better'''
+            flow_loss.append(self.SR_loss(outputs[i], outputs[i + 1]))
+            # flow_loss.append(self.mse_loss(outputs[i], outputs[i + 1]))
+        return 0.005 * np.mean(outputs)
 
 class _loss4object(nn.Module):
     def __iter__(self):
