@@ -1,6 +1,7 @@
 from network.video_super_resolution import VSR
 from utils.frame_utils import *
 from utils.video_utils import *
+from utils.tools import down_scailing
 from utils import tools
 import argparse, torch
 import colorama, os
@@ -117,9 +118,8 @@ if __name__ == '__main__':
                             total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1,
                             leave=True, position=offset, desc=title)
 
-        for batch_idx, datas in enumerate(progress):
-
-            data, target, high_frames = [torch.tensor(list(map(low_resolution, d))) for d in data], \
+        for batch_idx, data in enumerate(progress):
+            data, target, high_frames = [torch.tensor(list(map(down_scailing, d))) for d in data], \
                                         [torch.tensor(t[1]) for t in data], \
                                         [torch.tensor(d) for d in data]
             if args.cuda and args.number_gpus == 1:
