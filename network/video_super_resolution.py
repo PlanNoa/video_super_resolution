@@ -11,11 +11,11 @@ class VSR(torch.nn.Module):
         self.Flow_loss = _Flow_loss()
         self.loss4object = _loss4object()
 
-    def forward(self, data, target, train=True):
-        output = self.model(data)
-        frames = data.copy()
-        frames[1] = output
-        loss = self.loss_calculate(output, target, frames) if train else None
+    def forward(self, data, target, high_frames, estimated_image, train=True):
+        output = self.model(data, estimated_image)
+        output = self.model([estimated_image, output, data])
+        high_frames[1] = output
+        loss = self.loss_calculate(output, target, high_frames) if train else None
         return output, loss
 
     def loss_calculate(self, output, target, outputs):

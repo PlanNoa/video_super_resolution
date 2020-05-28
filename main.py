@@ -119,13 +119,17 @@ if __name__ == '__main__':
 
         for batch_idx, datas in enumerate(progress):
 
-            data, target = [torch.tensor(list(map(low_resolution, d))) for d in data], [torch.tensor(t[1]) for t in data]
+            data, target, high_frames = [torch.tensor(list(map(low_resolution, d))) for d in data], \
+                                        [torch.tensor(t[1]) for t in data], \
+                                        [torch.tensor(d) for d in data]
             if args.cuda and args.number_gpus == 1:
-                data, target = [d.cuda for d in data], [t.cuda for t in target]
+                data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in high_frames]
 
+            estimated_image = None
             for x, y in zip(data, target):
                 optimizer.zero_grad() if not is_validate else None
-                output, losses = model(x, y)
+                output, losses = model(x, y, high_frames, estimated_image)
+                estimated_image = output
                 loss_val = torch.mean(losses)
                 total_loss += loss_val.item()
 
