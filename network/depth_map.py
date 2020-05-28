@@ -3,12 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 from torch.autograd import Variable
-from torch import Tensor
-import cv2
-import math
-import numpy as np
-import time
-from numpy.linalg import inv
+
 
 def down_conv_layer(input_channels, output_channels, kernel_size):
     return nn.Sequential(
@@ -162,12 +157,12 @@ class depthNet(nn.Module):
                 torch.abs(warped - left_image), dim=1)
         return costvolume
 
-    def forward(self, left_image, right_image, KRKiUV_T, KT_T):
-        plane_sweep_volume = self.getVolume(left_image, right_image, KRKiUV_T, KT_T)
+    def forward(self, image, KRKiUV_T, KT_T):
+        #plane_sweep_volume = self.getVolume(image, KRKiUV_T, KT_T)
         # left_image *= 0.0
-        x = torch.cat((left_image, plane_sweep_volume), 1)
+        #x = torch.cat((left_image, plane_sweep_volume), 1)
 
-        conv1 = self.conv1(x)
+        conv1 = self.conv1(image)
         conv2 = self.conv2(conv1)
         conv3 = self.conv3(conv2)
         conv4 = self.conv4(conv3)
