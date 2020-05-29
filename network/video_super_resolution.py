@@ -7,9 +7,9 @@ from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
 from utils.tools import up_scaling
 
-class SRFBN(torch.nn.Module):
+class VSR(torch.nn.Module):
     def __init__(self):
-        super(SRFBN, self).__init__()
+        super(VSR, self).__init__()
         self.model = SRProjectionModule().train()
         self.FlowModule = FlowProjectionModule().eval()
         self.DepthModule = DepthProjectionModule().eval()

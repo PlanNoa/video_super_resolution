@@ -68,7 +68,7 @@ class FeedbackBlock(nn.Module):
     def reset_state(self):
         self.should_reset = True
 
-class SRFBN(nn.Module):
+class SRProjectionModule(nn.Module):
     def __init__(self, in_channels=3, out_channels=3, num_features=64, upscale_factor=4, num_steps=4, num_groups=6, act_type='prelu',
                  norm_type=None):
         """
@@ -80,7 +80,7 @@ class SRFBN(nn.Module):
         :param act_type:
         :param norm_type:
         """
-        super(SRFBN, self).__init__()
+        super(SRProjectionModule, self).__init__()
 
         stride = 4
         padding = 2

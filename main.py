@@ -1,4 +1,4 @@
-from network.video_super_resolution import SRFBN
+from network.video_super_resolution import VSR
 from utils.frame_utils import *
 from utils.video_utils import *
 from utils.tools import down_scailing
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             validation_loader = DataLoader(validation_dataset, batch_size=args.effective_batch_size, shuffle=False)
 
     with tools.TimerBlock("Building {} model".format(args.model_name)) as block:
-        SRmodel = SRFBN()
+        SRmodel = VSR()
         if args.cuda and args.number_gpus > 1:
             block.log('Parallelizing')
             SRmodel = nn.parallel.DataParallel(SRmodel, device_ids=list(range(args.number_gpus)))
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
-            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRFBN, optimizer=optimizer, is_validate=True, offset=offset)
+            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel, optimizer=optimizer, is_validate=True, offset=offset)
             offset += 1
 
             is_best=False
@@ -166,7 +166,7 @@ if __name__ == '__main__':
             checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
             tools.save_checkpoint({   'arch' : args.model,
                                       'epoch': epoch,
-                                      'state_dict': SRFBN.model.state_dict(),
+                                      'state_dict': SRmodel.model.state_dict(),
                                       'best_EPE': best_err,
                                       'optimizer': optimizer},
                                       is_best, args.save, args.model)
@@ -175,7 +175,7 @@ if __name__ == '__main__':
             offset += 1
 
         if not args.skip_training:
-            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRFBN, optimizer=optimizer, offset=offset)
+            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel, optimizer=optimizer, offset=offset)
             global_iteration += iterations
             offset += 1
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
                 checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
                 tools.save_checkpoint({   'arch' : args.model,
                                           'epoch': epoch,
-                                          'state_dict': SRFBN.model.state_dict(),
+                                          'state_dict': SRmodel.model.state_dict(),
                                           'best_EPE': train_loss},
                                           False, args.save, args.model, filename = 'train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
