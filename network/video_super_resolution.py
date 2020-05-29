@@ -1,19 +1,19 @@
 import torch
 import numpy as np
-from my_packages.SuperResolution import SuperResolutionModule
+from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
 from loss_function import _SR_loss, _Flow_loss, _loss4object
 from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
 from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
 from utils.tools import up_scaling
 
-class VSR(torch.nn.Module):
+class SRFBN(torch.nn.Module):
     def __init__(self):
-        super(VSR, self).__init__()
-        self.model = SuperResolutionModule()
+        super(SRFBN, self).__init__()
+        self.model = SRProjectionModule().train()
         self.FlowModule = FlowProjectionModule().eval()
         self.DepthModule = DepthProjectionModule().eval()
-        self.VOSModule = VOSProjectionModule.eval()
+        self.VOSModule = VOSProjectionModule().eval()
         self.SR_loss = _SR_loss()
         self.Flow_loss = _Flow_loss()
         self.loss4object = _loss4object()

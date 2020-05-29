@@ -1,8 +1,6 @@
-# pytorch 0.4.0
 import torch
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
-
 
 class FeedbackBlock(nn.Module):
     def __init__(self, num_features, num_groups, act_type, norm_type):
@@ -69,6 +67,7 @@ class FeedbackBlock(nn.Module):
     def reset_state(self):
         self.should_reset = True
 
+<<<<<<< HEAD:my_packages/SuperResolution/model.py
 
 class SRFBN(nn.Module):
     def __init__(self, in_channels=3, out_channels=3, num_features=64, num_steps=4, num_groups=6, act_type='prelu',
@@ -84,6 +83,12 @@ class SRFBN(nn.Module):
         :param norm_type:
         """
         super(SRFBN, self).__init__()
+=======
+class SRProjectionModule(nn.Module):
+    def __init__(self, in_channels, out_channels, num_features, num_steps, num_groups, act_type='prelu',
+                 norm_type=None):
+        super(SRProjectionModule, self).__init__()
+>>>>>>> 2f9e85a936ee2bbcb96a5a35635c7cf4a8ba5e10:my_packages/SRProjection/SRProjectionModule.py
 
         stride = 4
         padding = 2
@@ -135,3 +140,7 @@ class SRFBN(nn.Module):
 
     def _reset_state(self):
         self.block.reset_state()
+
+
+    def forward(self, input):
+        return self.net(input)

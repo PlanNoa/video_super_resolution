@@ -1,13 +1,8 @@
 from __future__ import division
 import torch
 from torch.autograd import Variable
-from torch.utils import data
-
 import cv2
-from PIL import Image
 import numpy as np
-import os
-import glob
 
 
 def ToLabel(E):
