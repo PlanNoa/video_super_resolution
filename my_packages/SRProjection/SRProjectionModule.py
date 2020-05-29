@@ -1,15 +1,15 @@
+# pytorch 0.4.0
 import torch
+
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
 
 class FeedbackBlock(nn.Module):
     def __init__(self, num_features, num_groups, act_type, norm_type):
         super(FeedbackBlock, self).__init__()
-
         stride = 4
         padding = 2
         kernel_size = 8
-
         self.num_groups = num_groups
         self.compress_in = ConvBlock(2 * num_features, num_features,
                                      kernel_size=1,
@@ -59,6 +59,7 @@ class FeedbackBlock(nn.Module):
             LD_L = self.downBlocks[idx](LD_H)
             lr_features.append(LD_L)
         del hr_features
+
         output = torch.cat(tuple(lr_features[1:]), 1)  # leave out input x, i.e. lr_features[0]
         output = self.compress_out(output)
         self.last_hidden = output
@@ -67,13 +68,10 @@ class FeedbackBlock(nn.Module):
     def reset_state(self):
         self.should_reset = True
 
-<<<<<<< HEAD:my_packages/SuperResolution/model.py
-
 class SRFBN(nn.Module):
     def __init__(self, in_channels=3, out_channels=3, num_features=64, num_steps=4, num_groups=6, act_type='prelu',
                  norm_type=None):
         """
-
         :param in_channels: Input image channels
         :param out_channels: Output image channels
         :param num_features: features
@@ -83,12 +81,6 @@ class SRFBN(nn.Module):
         :param norm_type:
         """
         super(SRFBN, self).__init__()
-=======
-class SRProjectionModule(nn.Module):
-    def __init__(self, in_channels, out_channels, num_features, num_steps, num_groups, act_type='prelu',
-                 norm_type=None):
-        super(SRProjectionModule, self).__init__()
->>>>>>> 2f9e85a936ee2bbcb96a5a35635c7cf4a8ba5e10:my_packages/SRProjection/SRProjectionModule.py
 
         stride = 4
         padding = 2
@@ -140,7 +132,3 @@ class SRProjectionModule(nn.Module):
 
     def _reset_state(self):
         self.block.reset_state()
-
-
-    def forward(self, input):
-        return self.net(input)
