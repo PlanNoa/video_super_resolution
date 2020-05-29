@@ -3,3 +3,4 @@ pretrained/
 .idea/
 __pycache__/
 .pcy
+data/
