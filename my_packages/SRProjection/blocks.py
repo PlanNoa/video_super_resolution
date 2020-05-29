@@ -1,7 +1,7 @@
 import sys
 import torch
 import torch.nn as nn
-
+from collections import OrderedDict
 
 def ConvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias=True, valid_padding=True, padding=0, \
               act_type='relu', norm_type='bn', pad_type='zero', mode='CNA'):
@@ -81,13 +81,9 @@ def norm(n_feature, norm_type='bn'):
     norm_type = norm_type.lower()
 
     layer = None
-
     if norm_type == 'bn':
-
         layer = nn.BatchNorm2d(n_feature)
-
     else:
-
         raise NotImplementedError('[ERROR] Normalization layer [%s] is not implemented!' % norm_type)
 
     return layer
