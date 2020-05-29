@@ -71,8 +71,18 @@ class FeedbackBlock(nn.Module):
 
 
 class SRFBN(nn.Module):
-    def __init__(self, in_channels, out_channels, num_features, num_steps, num_groups, act_type='prelu',
+    def __init__(self, in_channels=3, out_channels=3, num_features=64, num_steps=4, num_groups=6, act_type='prelu',
                  norm_type=None):
+        """
+
+        :param in_channels: Input image channels
+        :param out_channels: Output image channels
+        :param num_features: features
+        :param num_steps: 시계열 길이
+        :param num_groups:
+        :param act_type:
+        :param norm_type:
+        """
         super(SRFBN, self).__init__()
 
         stride = 4
