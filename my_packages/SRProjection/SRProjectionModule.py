@@ -69,7 +69,7 @@ class FeedbackBlock(nn.Module):
         self.should_reset = True
 
 class SRFBN(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=64, num_steps=4, num_groups=6, act_type='prelu',
+    def __init__(self, in_channels=3, out_channels=3, num_features=64, upscale_factor=4, num_steps=4, num_groups=6, act_type='prelu',
                  norm_type=None):
         """
         :param in_channels: Input image channels
