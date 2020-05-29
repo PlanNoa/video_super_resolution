@@ -26,9 +26,11 @@ class SRFBN(torch.nn.Module):
                      self.DepthModule(data[1], data[2])]
         optical_flow = torch.tensor(list(map(up_scaling, optical_flow)))
         depth_map = torch.tensor(list(map(up_scaling, depth_map)))
-        input = torch.cat((optical_flow[0], optical_flow[1],
-                          depth_map[0], depth_map[1],
-                          estimated_image), 0)
+        data = torch.tensor(list(map(up_scaling, data)))
+        input = torch.cat((data[0], data[1], data[2],
+                           optical_flow[0], optical_flow[1],
+                           depth_map[0], depth_map[1],
+                           estimated_image), 0)
         output = self.model(input)
 
         data = [estimated_image, output, data[2]]
@@ -38,9 +40,10 @@ class SRFBN(torch.nn.Module):
                      self.DepthModule(data[1], data[2])]
         VOSmask = self.VOSModule(data[0], data[1]) != 0
         estimated_image = np.bitwise_and(input[1], VOSmask)
-        input = torch.cat((optical_flow[0], optical_flow[1],
-                          depth_map[0], depth_map[1],
-                          estimated_image))
+        input = torch.cat((data[0], data[1], data[2],
+                           optical_flow[0], optical_flow[1],
+                           depth_map[0], depth_map[1],
+                           estimated_image))
         output = self.model(input)
 
         high_frames[1] = output
