@@ -3,6 +3,7 @@ import cv2
 from torch.utils.data import Dataset
 from glob import glob
 import os
+import numpy as np
 
 class VideoDataset(Dataset):
     def __init__(self, path):
@@ -14,8 +15,9 @@ class VideoDataset(Dataset):
     def read_video(self, file):
         imgs = []
         cap = cv2.VideoCapture(file)
-        while cap.isopen():
-            ret, img = cap.read()
+        length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        for i in range(length):
+            ret, img = cap.read(i)
             imgs.append(img)
         data = [imgs[i:i+3] for i in range(len(imgs)-2)]
         return data

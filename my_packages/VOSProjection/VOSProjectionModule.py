@@ -10,7 +10,8 @@ class VOSProjectionModule(Module):
     def __init__(self):
         super(VOSProjectionModule, self).__init__()
         self.model = RGMP().cuda()
-        self.model.load_state_dict(torch.load('pretrained/weights.pth'))
+        self.dict = torch.load('my_packages/VOSProjection/pretrained/weights.pth')
+        self.model.load_state_dict({k[7:] if k[:7] == 'module.' else k:self.dict[k] for k in self.dict})
         self.model.eval()
 
     def preprocess(self, input1, input2, optical_flow=None):

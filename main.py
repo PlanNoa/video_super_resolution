@@ -10,6 +10,10 @@ import numpy as np
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
+
+def torch2numpy(i):
+    return i[0].numpy()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -22,12 +26,13 @@ if __name__ == '__main__':
     parser.add_argument('--no_cuda', action='store_true')
 
     parser.add_argument('--seed', type=int, default=1)
-    parser.add_argument('--save', '-s', default='./work', type=str, help='directory for saving')
-    parser.add_argument('--model_name', '-s', default='SRmodel', type=str)
+    parser.add_argument('--save', default='./work', type=str, help='directory for saving')
+    parser.add_argument('--model_name', default='SRmodel', type=str)
 
     parser.add_argument('--validation_frequency', type=int, default=5, help='validate every n epochs')
     parser.add_argument('--validation_n_batches', type=int, default=-1)
-    parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
+    parser.add_argument('--resume', default='', type=str, metavar='PATH',
+                        help='path to latest checkpoint (default: none)')
 
     parser.add_argument('--skip_training', action='store_true')
     parser.add_argument('--skip_validation', action='store_true')
@@ -37,9 +42,9 @@ if __name__ == '__main__':
 
     with tools.TimerBlock("Parsing Arguments") as block:
         args = parser.parse_args()
-        if args.number_gpus < 0 : args.number_gpus = torch.cuda.device_count()
+        if args.number_gpus < 0: args.number_gpus = torch.cuda.device_count()
 
-        parser.add_argument('--IGNORE',  action='store_true')
+        parser.add_argument('--IGNORE', action='store_true')
         defaults = vars(parser.parse_args(['--IGNORE']))
 
         for argument, value in sorted(vars(args).items()):
@@ -54,16 +59,16 @@ if __name__ == '__main__':
 
         if exists(args.training_dataset_root):
             train_dataset = VideoDataset(args.training_dataset_root)
-            block.log('Training Dataset: {}'.format(args.training_dataset))
-            block.log('Training Input: {}'.format(train_dataset[0][0].size()))
-            block.log('Training Targets: {}'.format(train_dataset[0][0][1].size()))
+            block.log('Training Dataset: {}'.format(args.training_dataset_root))
+            block.log('Training Input: {}'.format(np.array(train_dataset[0][0]).shape))
+            block.log('Training Targets: {}'.format(train_dataset[0][0][1].shape))
             train_loader = DataLoader(train_dataset, batch_size=args.effective_batch_size, shuffle=True)
 
         if exists(args.validation_dataset_root):
             validation_dataset = VideoDataset(args.validation_dataset_root)
-            block.log('Validataion Dataset: {}'.format(args.validation_dataset))
-            block.log('Validataion Input: {}'.format(validation_dataset[0][0].size()))
-            block.log('Validataion Targets: {}'.format(validation_dataset[0][0][1].size()))
+            block.log('Validataion Dataset: {}'.format(args.validation_dataset_root))
+            block.log('Validataion Input: {}'.format(np.array(validation_dataset[0][0]).shape))
+            block.log('Validataion Targets: {}'.format(validation_dataset[0][0][1].shape))
             validation_loader = DataLoader(validation_dataset, batch_size=args.effective_batch_size, shuffle=False)
 
     with tools.TimerBlock("Building {} model".format(args.model_name)) as block:
@@ -96,11 +101,12 @@ if __name__ == '__main__':
         if not os.path.exists(args.save):
             os.makedirs(args.save)
 
-    with tools.TimerBlock("Initializing {} Optimizer".format(args.optimizer)) as block:
+    with tools.TimerBlock("Initializing Optimizer") as block:
         if args.resume and os.path.isfile(args.resume):
             optimizer = checkpoint['optimizer']
         else:
             optimizer = torch.optim.Adam(SRmodel.parameters())
+
 
     def train(args, epoch, data_loader, model, optimizer, is_validate=False, offset=0):
         total_loss = 0
@@ -109,7 +115,9 @@ if __name__ == '__main__':
             model.eval()
             title = 'Validating Epoch {}'.format(epoch)
             args.validation_n_batches = np.inf if args.validation_n_batches < 0 else args.validation_n_batches
-            progress = tqdm(tools.IteratorTimer(data_loader), ncols=100, total=np.minimum(len(data_loader), args.validation_n_batches), leave=True, position=offset, desc=title)
+            progress = tqdm(tools.IteratorTimer(data_loader), ncols=100,
+                            total=np.minimum(len(data_loader), args.validation_n_batches), leave=True, position=offset,
+                            desc=title)
         else:
             model.train()
             title = 'Training Epoch {}'.format(epoch)
@@ -118,16 +126,21 @@ if __name__ == '__main__':
                             total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1,
                             leave=True, position=offset, desc=title)
 
-        for batch_idx, data in enumerate(progress):
-            data, target, high_frames = [torch.tensor(list(map(down_scailing, d))) for d in data], \
-                                        [torch.tensor(t[1]) for t in data], \
-                                        [torch.tensor(d) for d in data]
-            if args.cuda and args.number_gpus == 1:
-                data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in high_frames]
+        for batch_idx, datas in enumerate(progress):
+            data = torch.tensor(np.array([list(map(down_scailing, d)) for d in datas]))
+            # torch.Size([69, 3, 540, 960, 3])
+            target = torch.tensor(np.array([list(map(torch2numpy, d))[1] for d in datas]))
+            # torch.Size([69, 1080, 1920, 3])
+            high_frames = torch.tensor(np.array([list(map(torch2numpy, d)) for d in datas]))
+            # torch.Size([69, 3, 1080, 1920, 3])
+            if args.cuda and args.number_gpus >= 1:
+                data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in
+                                                                                               high_frames]
 
             estimated_image = None
             for x, y in zip(data, target):
                 optimizer.zero_grad() if not is_validate else None
+                # to do
                 output, losses = model(x, y, high_frames, estimated_image)
                 estimated_image = output
                 loss_val = torch.mean(losses)
@@ -140,52 +153,56 @@ if __name__ == '__main__':
             title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
             progress.set_description(title)
 
-            if (is_validate and (batch_idx == args.validation_n_batches)) or\
+            if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
                 progress.close()
                 break
 
         return total_loss / float(batch_idx + 1), (batch_idx + 1)
 
+
     best_err = 1e8
-    progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100, desc='Overall Progress', leave=True, position=True)
+    progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100,
+                    desc='Overall Progress', leave=True, position=True)
     offset = 1
     last_epoch_time = progress._time()
     global_iteration = 0
 
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
-            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel, optimizer=optimizer, is_validate=True, offset=offset)
+            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel,
+                                       optimizer=optimizer, is_validate=True, offset=offset)
             offset += 1
 
-            is_best=False
+            is_best = False
             if validation_loss < best_err:
                 best_err = validation_loss
                 is_best = True
 
             checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-            tools.save_checkpoint({   'arch' : args.model,
-                                      'epoch': epoch,
-                                      'state_dict': SRmodel.model.state_dict(),
-                                      'best_EPE': best_err,
-                                      'optimizer': optimizer},
-                                      is_best, args.save, args.model)
+            tools.save_checkpoint({'arch': args.model,
+                                   'epoch': epoch,
+                                   'state_dict': SRmodel.model.state_dict(),
+                                   'best_EPE': best_err,
+                                   'optimizer': optimizer},
+                                  is_best, args.save, args.model)
             checkpoint_progress.update(1)
             checkpoint_progress.close()
             offset += 1
 
         if not args.skip_training:
-            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel, optimizer=optimizer, offset=offset)
+            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel,
+                                           optimizer=optimizer, offset=offset)
             global_iteration += iterations
             offset += 1
 
             if ((epoch - 1) % args.validation_frequency) == 0:
                 checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-                tools.save_checkpoint({   'arch' : args.model,
-                                          'epoch': epoch,
-                                          'state_dict': SRmodel.model.state_dict(),
-                                          'best_EPE': train_loss},
-                                          False, args.save, args.model, filename = 'train-checkpoint.pth.tar')
+                tools.save_checkpoint({'arch': args.model,
+                                       'epoch': epoch,
+                                       'state_dict': SRmodel.model.state_dict(),
+                                       'best_EPE': train_loss},
+                                      False, args.save, args.model, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 

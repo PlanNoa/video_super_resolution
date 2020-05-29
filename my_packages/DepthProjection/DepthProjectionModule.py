@@ -7,13 +7,13 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 import torch
-from visualize import np2Depth
+from .visualize import np2Depth
 
 class DepthProjectionModule(Module):
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
         self.net = MVDepthNet()
-        self.dict = torch.load("pretrained/opensource_model.pth.tar")
+        self.dict = torch.load("my_packages/DepthProjection/pretrained/opensource_model.pth.tar")
         self.net.load_state_dict(self.dict['state_dict'])
 
     def getVolume(self, left_image, right_image, KRKiUV_T, KT_T):

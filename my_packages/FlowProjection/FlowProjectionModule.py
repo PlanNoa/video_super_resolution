@@ -9,7 +9,7 @@ class FlowProjectionModule(Module):
         super(FlowProjectionModule, self).__init__()
         self.cropper = None
         self.net = FlowNet2().cuda()
-        self.dict = torch.load("pretrained/FlowNet2_checkpoint.pth.tar")
+        self.dict = torch.load("my_packages/FlowProjection/pretrained/FlowNet2_checkpoint.pth.tar")
         self.net.load_state_dict(self.dict["state_dict"])
         self.image_size = image_size
         self.render_size = render_size

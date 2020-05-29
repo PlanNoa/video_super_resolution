@@ -1,5 +1,7 @@
 import time, os, shutil, torch
 from PIL import Image
+import numpy as np
+
 
 class StaticCenterCrop(object):
     def __init__(self, image_size, crop_size):
@@ -65,17 +67,16 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
     if is_best:
         shutil.copyfile(name, prefix_save + '_model_best.pth.tar')
 
-
 def down_scailing(img):
-    if type(img.size) == int:
-        img = Image.fromarray(img)
+    img = Image.fromarray(img[0].numpy())
     x, y = img.size
     img = img.resize((int(x/2), int(y/2)))
+    img = np.asarray(img)
     return img
 
 def up_scaling(img):
-    if type(img.size) == int:
-        img = Image.fromarray(img)
+    img = Image.fromarray(img[0].numpy())
     x, y = img.size
     img = img.resize((int(x*2), int(y*2)))
+    img = np.asarray(img)
     return img

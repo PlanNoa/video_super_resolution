@@ -101,7 +101,7 @@ class SRProjectionModule(nn.Module):
                                  kernel_size=1,
                                  act_type=act_type, norm_type=norm_type)
         # basic block
-        self.block = FeedbackBlock(num_features, num_groups, upscale_factor, act_type, norm_type)
+        self.block = FeedbackBlock(num_features, num_groups, act_type, norm_type)
         # reconstruction block
         # uncomment for pytorch 0.4.0
         # self.upsample = nn.Upsample(scale_factor=upscale_factor, mode='bilinear')

@@ -2,11 +2,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.nn.init as init
-from torch.utils import data
-import torch.utils.model_zoo as model_zoo
-from torchvision import models
-
+from .resnet import resnet50
 
 class Encoder(nn.Module):
     def __init__(self):
@@ -14,7 +10,7 @@ class Encoder(nn.Module):
 
         self.conv1_p = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=True)
 
-        resnet = models.resnet50(pretrained=True)
+        resnet = resnet50()
         self.conv1 = resnet.conv1
         self.bn1 = resnet.bn1
         self.relu = resnet.relu  # 1/2, 64

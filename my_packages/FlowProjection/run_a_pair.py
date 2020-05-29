@@ -1,7 +1,5 @@
 import torch
 import numpy as np
-import argparse
-
 from .models import FlowNet2
 from utils.frame_utils import read_gen
 from utils.tools import StaticCenterCrop
