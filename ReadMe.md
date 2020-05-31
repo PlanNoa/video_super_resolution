@@ -16,7 +16,7 @@
 7. testing(ToDo)
 
 ### TODO
-- #####  *define new way to calculate flow-loss*
+- #####  define new way to calculate flow-loss
 - count_object function on object_utils.py
 - Inference function on main.py
 - etc..
