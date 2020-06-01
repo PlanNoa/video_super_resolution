@@ -10,10 +10,6 @@ import numpy as np
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-
-def torch2numpy(i):
-    return i[0].numpy()
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -126,21 +122,26 @@ if __name__ == '__main__':
                             total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1,
                             leave=True, position=offset, desc=title)
 
+        def torch2numpy(i):
+            return i[0].numpy()
+
         for batch_idx, datas in enumerate(progress):
-            data = torch.tensor(np.array([list(map(down_scailing, d)) for d in datas]))
+            data = np.array([list(map(down_scailing, d)) for d in datas])
+            # data = torch.tensor(np.array([list(map(down_scailing, d)) for d in datas]))
             # torch.Size([69, 3, 540, 960, 3])
-            target = torch.tensor(np.array([list(map(torch2numpy, d))[1] for d in datas]))
+            target = np.array([list(map(torch2numpy, d))[1] for d in datas])
+            # target = torch.tensor(np.array([list(map(torch2numpy, d))[1] for d in datas]))
             # torch.Size([69, 1080, 1920, 3])
-            high_frames = torch.tensor(np.array([list(map(torch2numpy, d)) for d in datas]))
+            high_frames = np.array([list(map(torch2numpy, d)) for d in datas])
+            # high_frames = torch.tensor(np.array([list(map(torch2numpy, d)) for d in datas]))
             # torch.Size([69, 3, 1080, 1920, 3])
-            if args.cuda and args.number_gpus >= 1:
-                data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in
-                                                                                               high_frames]
+
+            # if args.cuda and args.number_gpus >= 1:
+            #    data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in high_frames]
 
             estimated_image = None
             for x, y in zip(data, target):
                 optimizer.zero_grad() if not is_validate else None
-                # to do
                 output, losses = model(x, y, high_frames, estimated_image)
                 estimated_image = output
                 loss_val = torch.mean(losses)

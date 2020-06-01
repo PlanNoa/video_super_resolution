@@ -1,5 +1,6 @@
 from torch.nn.modules.module import Module
 from utils.tools import StaticCenterCrop
+from utils.flow_utils import flow2img
 from .models import FlowNet2
 import torch
 import numpy as np
@@ -32,4 +33,7 @@ class FlowProjectionModule(Module):
         images = images.unsqueeze(0).cuda()
 
         result = self.net(images).squeeze()
+        flow = result.data.cpu().numpy().transpose(1, 2, 0)
+        result = flow2img(flow)
+
         return result

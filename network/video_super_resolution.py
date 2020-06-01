@@ -2,24 +2,23 @@ import torch
 import numpy as np
 from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
 from loss_function import _SR_loss, _Flow_loss, _loss4object
-from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
-from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
-from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
+from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule as Dnet
+from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule as Fnet
+from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule as Vnet
 from utils.tools import up_scaling
 
 class VSR(torch.nn.Module):
     def __init__(self):
         super(VSR, self).__init__()
-        self.model = SRProjectionModule().train()
-        self.FlowModule = FlowProjectionModule().eval()
-        self.DepthModule = DepthProjectionModule().eval()
-        self.VOSModule = VOSProjectionModule().eval()
+        self.model = SRProjectionModule()
+        self.FlowModule = Fnet()
+        self.DepthModule = Dnet()
+        self.VOSModule = Vnet()
         self.SR_loss = _SR_loss()
         self.Flow_loss = _Flow_loss()
         self.loss4object = _loss4object()
 
     def forward(self, data, target, high_frames, estimated_image, train=True):
-
         optical_flow = [self.FlowModule(data[0], data[1]),
                         self.FlowModule(data[1], data[2])]
         depth_map = [self.DepthModule(data[0], data[1]),
@@ -27,10 +26,13 @@ class VSR(torch.nn.Module):
         optical_flow = torch.tensor(list(map(up_scaling, optical_flow)))
         depth_map = torch.tensor(list(map(up_scaling, depth_map)))
         data = torch.tensor(list(map(up_scaling, data)))
+        print(data[0].shape)
+        print(optical_flow[0].shape)
+        print(depth_map[0].shape)
         input = torch.cat((data[0], data[1], data[2],
                            optical_flow[0], optical_flow[1],
                            depth_map[0], depth_map[1],
-                           estimated_image), 0)
+                           estimated_image if estimated_image!=None else torch.tensor(data[0])), 0)
         output = self.model(input)
 
         data = [estimated_image, output, data[2]]

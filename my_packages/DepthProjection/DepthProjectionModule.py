@@ -81,7 +81,7 @@ class DepthProjectionModule(Module):
         cv2.line(right_image,
                  (int(far_pixel[0] + 0.5), int(far_pixel[1] + 0.5)),
                  (int(near_pixel[0] + 0.5), int(near_pixel[1] + 0.5)), [0, 0, 255], 4)
-        cv2.circle(left_image, (test_point[0], test_point[1]), 4, [0, 0, 255], -1)
+        cv2.circle(left_image, (int(test_point[0]), int(test_point[1])), 4, [0, 0, 255], -1)
 
         original_width = left_image.shape[1]
         original_height = left_image.shape[0]
