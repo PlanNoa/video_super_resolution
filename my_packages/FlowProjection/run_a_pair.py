@@ -1,44 +1,51 @@
 import torch
 import numpy as np
-from .models import FlowNet2
+import argparse
 from utils.frame_utils import read_gen
-from utils.tools import StaticCenterCrop
+import time
+from utils.flow_utils import *
+from models import FlowNet2
 
-if __name__ == '__main__':
-    net = FlowNet2().cuda()
-    dict = torch.load("pretrained/FlowNet2_checkpoint.pth.tar")
-    net.load_state_dict(dict["state_dict"])
+class StaticCenterCrop(object):
+    def __init__(self, image_size, crop_size):
+        self.th, self.tw = crop_size
+        self.h, self.w = image_size
+    def __call__(self, img):
+        return img[(self.h-self.th)//2:(self.h+self.th)//2, (self.w-self.tw)//2:(self.w+self.tw)//2,:]
 
-    # load the image pair, you can find this operation in dataset.py
-    img1 = read_gen("data/MPI-Sintel-testing/test/clean/testfortwo/frame_0001.png")
-    img2 = read_gen("data/MPI-Sintel-testing/test/clean/testfortwo/frame_0002.png")
+def visulize_flow(flow):
+    flow_data = flow
+    img = flow2img(flow_data)
+    plt.imsave("result.png", img)
 
-    images = [img1, img2]
-    image_size = img1.shape[:2]
+now = time.time()
+net = FlowNet2().cuda()
+dict = torch.load("pretrained/FlowNet2_checkpoint.pth.tar")
+net.load_state_dict(dict["state_dict"])
 
-    frame_size = img1.shape
-    render_size = [((frame_size[0])//64 )*64, ((frame_size[1])//64)*64]
+# load the image pair, you can find this operation in dataset.py
+img1 = read_gen("data/00000"+".jpg")
+img2 = read_gen("data/00001"+".jpg")
+images = [img1, img2]
+print(img1.shape)
+image_size = img1.shape[:2]
 
-    cropper = StaticCenterCrop(image_size, render_size)
-    images = list(map(cropper, images))
+frame_size = img1.shape
+render_size = [((frame_size[0])//64 )*64, ((frame_size[1])//64)*64]
 
-    images = np.array(images).transpose(3,0,1,2)
-    images = torch.from_numpy(images.astype(np.float32))
-    images = images.unsqueeze(0).cuda()
+cropper = StaticCenterCrop(image_size, render_size)
+images = list(map(cropper, images))
 
-    # process the image pair to obtian the flow
-    result = net(images).squeeze()
+images = np.array(images).transpose(3,0,1,2)
+images = torch.from_numpy(images.astype(np.float32))
+print(images.shape)
+images = images.unsqueeze(0).cuda()
 
-    # save flow, I reference the code in scripts/run-flownet.py in flownet2-caffe project
-    def writeFlow(name, flow):
-        f = open(name, 'wb')
-        f.write('PIEH'.encode('utf-8'))
-        np.array([flow.shape[1], flow.shape[0]], dtype=np.int32).tofile(f)
-        flow = flow.astype(np.float32)
-        flow.tofile(f)
-        f.flush()
-        f.close()
+        # process the image pair to obtian the flow
+result = net(images).squeeze()
+print(images.shape)
+print(result.shape)
 
-
-    data = result.data.cpu().numpy().transpose(1, 2, 0)
-    writeFlow("resultfortwo/a.flo", data)
+flow = result.data.cpu().numpy().transpose(1, 2, 0)
+visulize_flow(flow)
+print(flow.shape)
