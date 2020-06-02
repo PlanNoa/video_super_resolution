@@ -68,15 +68,22 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
         shutil.copyfile(name, prefix_save + '_model_best.pth.tar')
 
 def down_scailing(img):
-    img = Image.fromarray(img[0].numpy())
+    img = Image.fromarray(img[0].numpy(), "RGB")
     x, y = img.size
     img = img.resize((int(x/2), int(y/2)))
     img = np.asarray(img)
     return img
 
-def up_scaling(img):
-    img = Image.fromarray(img)
-    x, y = img.size
-    img = img.resize((int(x*2), int(y*2)))
+def up_scaling(img, name, shape=None):
+    img = Image.fromarray(img, "RGB")
+    if shape != None:
+        x, y = shape[1], shape[0]
+    else:
+        x, y = img.size
+        x *= 2
+        y *= 2
+    img = img.resize((int(x), int(y)))
+    import time
+    img.save(str(time.time()) + name+".png")
     img = np.asarray(img)
     return img
