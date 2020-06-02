@@ -127,14 +127,8 @@ if __name__ == '__main__':
 
         for batch_idx, datas in enumerate(progress):
             data = np.array([list(map(down_scailing, d)) for d in datas])
-            # data = torch.tensor(np.array([list(map(down_scailing, d)) for d in datas]))
-            # torch.Size([69, 3, 540, 960, 3])
             target = np.array([list(map(torch2numpy, d))[1] for d in datas])
-            # target = torch.tensor(np.array([list(map(torch2numpy, d))[1] for d in datas]))
-            # torch.Size([69, 1080, 1920, 3])
             high_frames = np.array([list(map(torch2numpy, d)) for d in datas])
-            # high_frames = torch.tensor(np.array([list(map(torch2numpy, d)) for d in datas]))
-            # torch.Size([69, 3, 1080, 1920, 3])
 
             # if args.cuda and args.number_gpus >= 1:
             #    data, target, high_frames = [d.cuda for d in data], [t.cuda for t in target], [hf.cuda for hf in high_frames]

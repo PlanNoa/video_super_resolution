@@ -23,16 +23,14 @@ class VSR(torch.nn.Module):
                         self.FlowModule(data[1], data[2])]
         depth_map = [self.DepthModule(data[0], data[1]),
                      self.DepthModule(data[1], data[2])]
-        optical_flow = torch.tensor(list(map(up_scaling, optical_flow)))
-        depth_map = torch.tensor(list(map(up_scaling, depth_map)))
-        data = torch.tensor(list(map(up_scaling, data)))
-        print(data[0].shape)
-        print(optical_flow[0].shape)
-        print(depth_map[0].shape)
-        input = torch.cat((data[0], data[1], data[2],
-                           optical_flow[0], optical_flow[1],
-                           depth_map[0], depth_map[1],
-                           estimated_image if estimated_image!=None else torch.tensor(data[0])), 0)
+        data = torch.tensor([up_scaling(img, "data") for img in data])
+        optical_flow = torch.tensor([up_scaling(img, "op", shape=data[0].shape) for img in optical_flow])
+        depth_map = torch.tensor([up_scaling(img, "dp", shape=data[0].shape) for img in depth_map])
+        input = torch.cat((data,
+                           optical_flow,
+                           depth_map,
+                           estimated_image if estimated_image!=None else torch.tensor(data[0:1])), 0)
+        # shape:[8, y, x, 3]
         output = self.model(input)
 
         data = [estimated_image, output, data[2]]
