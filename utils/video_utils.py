@@ -18,6 +18,7 @@ class VideoDataset(Dataset):
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         for i in range(length):
             ret, img = cap.read(i)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             imgs.append(img)
         data = [imgs[i:i+3] for i in range(len(imgs)-2)]
         return data
