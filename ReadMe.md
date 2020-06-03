@@ -16,6 +16,7 @@
 7. testing(ToDo)
 
 ### TODO
+- #####  define new depthnet module
 - #####  define new way to calculate flow-loss
 - count_object function on object_utils.py
 - Inference function on main.py
