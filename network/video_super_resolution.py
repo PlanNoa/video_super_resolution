@@ -19,18 +19,17 @@ class VSR(torch.nn.Module):
         self.loss4object = _loss4object()
 
     def forward(self, data, target, high_frames, estimated_image, train=True):
-        optical_flow = [self.FlowModule(data[0], data[1]),
-                        self.FlowModule(data[1], data[2])]
-        depth_map = [self.DepthModule(data[0], data[1]),
-                     self.DepthModule(data[1], data[2])]
+        optical_flow = [self.FlowModule(data[0].copy(), data[1].copy()),
+                        self.FlowModule(data[1].copy(), data[2].copy())]
+        depth_map = [self.DepthModule(data[0].copy(), data[1].copy()),
+                     self.DepthModule(data[1].copy(), data[2].copy())]
         data = torch.tensor([up_scaling(img, "data") for img in data])
         optical_flow = torch.tensor([up_scaling(img, "op", shape=data[0].shape) for img in optical_flow])
         depth_map = torch.tensor([up_scaling(img, "dp", shape=data[0].shape) for img in depth_map])
-        input = torch.cat((data,
-                           optical_flow,
-                           depth_map,
+        input = torch.cat((data, optical_flow, depth_map,
                            estimated_image if estimated_image!=None else torch.tensor(data[0:1])), 0)
         # shape:[8, y, x, 3]
+
         output = self.model(input)
 
         data = [estimated_image, output, data[2]]
@@ -38,12 +37,15 @@ class VSR(torch.nn.Module):
                         self.FlowModule(data[1], data[2])]
         depth_map = [self.DepthModule(data[0], data[1]),
                      self.DepthModule(data[1], data[2])]
+        data = torch.tensor([up_scaling(img, "data") for img in data])
+        optical_flow = torch.tensor([up_scaling(img, "op", shape=data[0].shape) for img in optical_flow])
+        depth_map = torch.tensor([up_scaling(img, "dp", shape=data[0].shape) for img in depth_map])
         VOSmask = self.VOSModule(data[0], data[1]) != 0
-        estimated_image = np.bitwise_and(input[1], VOSmask)
-        input = torch.cat((data[0], data[1], data[2],
-                           optical_flow[0], optical_flow[1],
-                           depth_map[0], depth_map[1],
-                           estimated_image))
+        estimated_image = torch.tensor(np.bitwise_and(input[1], VOSmask))
+        input = torch.cat((data, optical_flow, depth_map,
+                           estimated_image), 0)
+        # shape:[8, y, x, 3]
+
         output = self.model(input)
 
         high_frames[1] = output

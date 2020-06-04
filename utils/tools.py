@@ -74,7 +74,7 @@ def down_scailing(img):
     img = np.asarray(img)
     return img
 
-def up_scaling(img, name, shape=None):
+def up_scaling(img, name=None, shape=None):
     img = Image.fromarray(img, "RGB")
     if shape != None:
         x, y = shape[1], shape[0]
@@ -83,7 +83,8 @@ def up_scaling(img, name, shape=None):
         x *= 2
         y *= 2
     img = img.resize((int(x), int(y)))
-    import time
-    img.save(str(time.time()) + name+".png")
+    if name != None:
+        import time
+        img.save(str(time.time()) + name+".png")
     img = np.asarray(img)
     return img
