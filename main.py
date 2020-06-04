@@ -9,8 +9,10 @@ import torch.nn as nn
 import numpy as np
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+import warnings
 
 if __name__ == '__main__':
+    warnings.filterwarnings("ignore")
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--start_epoch', type=int, default=1)

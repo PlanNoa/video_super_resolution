@@ -101,10 +101,12 @@ class DepthProjectionModule(Module):
         torch_right_image = (torch_right_image - 81.0) / 35.0
 
         left_image_cuda = Tensor(torch_left_image).cuda()
-        left_image_cuda = Variable(left_image_cuda, volatile=True)
+        with torch.no_grad():
+            left_image_cuda = Variable(left_image_cuda)
 
         right_image_cuda = Tensor(torch_right_image).cuda()
-        right_image_cuda = Variable(right_image_cuda, volatile=True)
+        with torch.no_grad():
+            right_image_cuda = Variable(right_image_cuda)
 
         left_in_right_T = left2right[0:3, 3]
         left_in_right_R = left2right[0:3, 0:3]
