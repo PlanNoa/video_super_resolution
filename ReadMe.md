@@ -16,8 +16,8 @@
 7. testing(ToDo)
 
 ### TODO
+- srfbn memory problem.(srfbn get (n, 3, y/2, x/2) size input, but our model use t-1 estimated image with other inputs. need to downsample t-1 estimated image without data loss. or we can change srfbn output) 
 - #####  define new depthnet module
-- #####  define new srnet module
 - #####  define new way to calculate flow-loss
 - count_object function on object_utils.py
 - Inference function on main.py
