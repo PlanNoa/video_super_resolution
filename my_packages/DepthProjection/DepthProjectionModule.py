@@ -1,4 +1,5 @@
-import MegaDepth
+from my_packages.DepthProjection import MegaDepth
+
 
 class DepthProjectionModule():
     def __init__(self):
@@ -9,4 +10,3 @@ class DepthProjectionModule():
     def forward(self):
         pass
 
-aa = DepthProjectionModule()
