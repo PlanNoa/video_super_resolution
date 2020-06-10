@@ -19,7 +19,7 @@ class DepthProjectionModule():
 
     def forward(self, input):
         p = self.model.inference(input)
-        print(p.size())
+        print('a', p.size())
 
         p = torch.squeeze(p[0])
         import matplotlib.image as mpimg
