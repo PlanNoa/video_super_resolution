@@ -9,7 +9,7 @@ class DepthProjectionModule():
 
 
     def forward(self, input):
-        cur_filter_input = input
+        cur_filter_input = torch.from_numpy(input)
         temp = self.depthNet(torch.cat((cur_filter_input[:, :3, ...],
                                         cur_filter_input[:, 3:, ...]), dim=0))
         log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
