@@ -9,7 +9,7 @@ img = img.transpose(0, 2)
 
 img = img.transpose(1, 2)
 print(img.size())
-img = torch.cat([img, img], dim=0)
+#img = torch.cat([img, img], dim=0)
 img = torch.stack([img, img], dim=0)
 
 print(img.size())
