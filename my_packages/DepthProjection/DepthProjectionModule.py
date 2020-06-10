@@ -1,4 +1,5 @@
 import torch
+from my_packages.DepthProjection.
 from my_packages.DepthProjection import MegaDepth
 
 
@@ -6,6 +7,8 @@ class DepthProjectionModule():
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
         self.depthNet=MegaDepth.__dict__['HourGlass']("video_super_resolution/my_packages/DepthProjection/best_generalization_net_G.pth")
+        self.ctxNet = S2D_models.__dict__['S2DF_3dense']()
+        self.ctx_ch = 3 * 64 + 3
 
 
     def forward(self, input):
@@ -23,7 +26,8 @@ class DepthProjectionModule():
         temp = self.depthNet(torch.cat((cur_filter_input[:, :3, ...],
                                         cur_filter_input[:, 3:, ...]), dim=0))
         log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
-
+        import cv2
+        cv2.imshow(log_depth)
         cur_ctx_output = [
             torch.cat((self.ctxNet(cur_filter_input[:, :3, ...]),
                        log_depth[0].detach()), dim=1),
@@ -34,4 +38,4 @@ class DepthProjectionModule():
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
         import cv2
-        cv2.imshow(cur_filter_output)
+        cv2.imshow(log_depth)
