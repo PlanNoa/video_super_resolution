@@ -1,6 +1,4 @@
-from my_packages.DepthProjection import MegaDepth
-
-from my_packages.DepthProjection import models
+import MegaDepth
 
 class DepthProjectionModule():
     def __init__(self):
