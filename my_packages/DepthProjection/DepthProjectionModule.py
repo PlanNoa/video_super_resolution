@@ -22,10 +22,11 @@ class DepthProjectionModule():
         print('a', p.size())
 
         p = torch.squeeze(p[0])
-        import matplotlib.image as mpimg
-        from matplotlib.pyplot import imshow
+
+        import matplotlib.pyplot as plt
         p = p.detach().numpy()
-        imshow(p)
+        plt.imshow(p)
+        plt.show()
 
 
         input = input.float()
