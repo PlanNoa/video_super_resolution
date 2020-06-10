@@ -122,7 +122,7 @@ class HGModel(BaseModel):
 
     def evaluate_SDR(self, input_, targets):
         input_images = Variable(input_.cuda() )
-
+        print(input_images.size())
         prediction_d = self.netG.forward(input_images) 
 
         total_error, total_samples = self.computeSDR(prediction_d.data, targets)
