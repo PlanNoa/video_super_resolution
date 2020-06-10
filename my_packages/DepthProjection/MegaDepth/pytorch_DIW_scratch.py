@@ -756,6 +756,7 @@ pytorch_DIW_scratch = nn.Sequential( # Sequential,
 				),
 			),
 		),
+
 		LambdaReduce(lambda x,y: x+y), # CAddTable,
 	),
 	nn.Conv2d(64,1,(3, 3),(1, 1),(1, 1)),
