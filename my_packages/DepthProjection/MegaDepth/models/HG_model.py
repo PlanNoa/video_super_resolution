@@ -166,7 +166,7 @@ class HGModel(BaseModel):
         return rmse_loss, count
 
     def inference(self, input):
-        input = Variable(input.cuda())
+        input = Variable(input)
         prediction = self.netG.forward(input)
         return prediction
 

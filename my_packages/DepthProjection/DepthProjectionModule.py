@@ -18,8 +18,7 @@ class DepthProjectionModule():
         self.model.switch_to_eval()
 
     def forward(self, input):
-        a = torch.from_numpy(input)
-        p = self.model.inference(a)
+        p = self.model.inference(input)
         print(p.size())
 
 
