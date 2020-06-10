@@ -16,7 +16,7 @@ class DepthProjectionModule():
         print(input_0.size(), input_2.size())
         cur_input_0 = input_0
         cur_input_2 = input_2
-        cur_offset_input = torch.cat((cur_input_0, cur_input_2), dim=1)
+        cur_offset_input = torch.cat([cur_input_0, cur_input_2], dim=0)
         cur_filter_input = cur_offset_input
 
         print(cur_filter_input.size())
