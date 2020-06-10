@@ -47,8 +47,9 @@ class DepthProjectionModule():
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
 
         depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
+
         import cv2
-        cv2.imshow(depth_inv)
+        cv2.imshow(cur_filter_output)
 
     def get_MonoNet5(self, channel_in, channel_out, name):
 
