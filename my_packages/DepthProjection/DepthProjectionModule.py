@@ -23,5 +23,5 @@ class DepthProjectionModule():
         temp = self.forward_singlePath(self.initScaleNets_filter, cur_filter_input, 'filter')
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
-
-
+        import cv2
+        cv2.imshow(cur_filter_output)
