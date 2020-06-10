@@ -48,9 +48,13 @@ class DepthProjectionModule():
 
         depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
 
-        import cv2
+        print(temp.size())
+        print(cur_filter_output.size())
         cur_filter_output = torch.squeeze(cur_filter_output[0])
-        cv2.imshow(cur_filter_output)
+        import matplotlib.image as mpimg
+        from matplotlib.pyplot import imshow
+        cur_filter_output = cur_filter_output.detach().numpy()
+        imshow(cur_filter_output)
 
     def get_MonoNet5(self, channel_in, channel_out, name):
 
