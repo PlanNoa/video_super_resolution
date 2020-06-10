@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 from my_packages.DepthProjection import S2D_models
 from my_packages.DepthProjection import MegaDepth
+from my_packages.DepthProjection.MegaDepth.models.models import create_model
+from my_packages.DepthProjection.MegaDepth.options.train_options import TrainOptions
+opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 
 
 class DepthProjectionModule():
@@ -11,16 +14,13 @@ class DepthProjectionModule():
         filter_size = 4
         timestep = 0.5
         i = 0
-        self.depthNet=MegaDepth.__dict__['HourGlass']("video_super_resolution/my_packages/DepthProjection/best_generalization_net_G.pth")
-        self.initScaleNets_filter, self.initScaleNets_filter1, self.initScaleNets_filter2 = \
-            self.get_MonoNet5(channel if i == 0 else channel + filter_size * filter_size, filter_size * filter_size,
-                              "filter")
-
-        self.ctxNet = S2D_models.__dict__['S2DF_3dense']()
-        self.ctx_ch = 3 * 64 + 3
-
+        self.model = create_model(opt)
+        self.model.switch_to_eval()
 
     def forward(self, input):
+        a = torch.from_numpy(input)
+        p = self.model.inference(a)
+        print(p.size())
 
 
         input = input.float()
