@@ -9,6 +9,7 @@ img = img.transpose(0, 2)
 
 img = img.transpose(1, 2)
 print(img.size())
-img = np.column_stack((img, img), 1)
+img = np.column_stack([img, img])
+print(img.size())
 aa = DepthProjectionModule()
 aa.forward(img)
