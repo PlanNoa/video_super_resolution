@@ -13,6 +13,7 @@ class DepthProjectionModule():
         input = torch.from_numpy(input)
         print(input.size())
         input = input.transpose(0, 2)
+        print(input.size())
 
         input_0, input_2 = torch.squeeze(input, dim=0)
         cur_input_0 = input_0
