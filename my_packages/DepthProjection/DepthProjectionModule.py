@@ -10,7 +10,6 @@ class DepthProjectionModule():
 
     def forward(self, input):
 
-        input = torch.from_numpy(input)
 
 
         input_0, input_2 = torch.squeeze(input, dim=0)
