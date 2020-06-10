@@ -49,7 +49,7 @@ class DepthProjectionModule():
         depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
 
         print(temp.size())
-        print(cur_filter_output.size())
+        print(cur_filter_output[0].size())
         cur_filter_output = torch.squeeze(cur_filter_output[0])
         import matplotlib.image as mpimg
         from matplotlib.pyplot import imshow
