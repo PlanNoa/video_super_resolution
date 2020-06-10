@@ -21,6 +21,12 @@ class DepthProjectionModule():
         p = self.model.inference(input)
         print(p.size())
 
+        p = torch.squeeze(p[0])
+        import matplotlib.image as mpimg
+        from matplotlib.pyplot import imshow
+        p = p.detach().numpy()
+        imshow(p)
+
 
         input = input.float()
         input_0, input_2 = torch.squeeze(input, dim=0)
