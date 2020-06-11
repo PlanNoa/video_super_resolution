@@ -23,8 +23,10 @@ class DepthProjectionModule():
 
         p = torch.squeeze(p[0])
 
+        import cv2
         import matplotlib.pyplot as plt
         p = p.detach().numpy()
+        p = cv2.cvtColor(p, cv2.COLOR_BGR2RGB)
         plt.imshow(p)
         plt.savefig('a.png')
         plt.show()
