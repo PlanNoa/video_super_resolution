@@ -1,6 +1,11 @@
 import time, os, shutil, torch
 from PIL import Image
 import numpy as np
+from collections import OrderedDict
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree
 
 
 class StaticCenterCrop(object):
@@ -73,7 +78,7 @@ def down_scailing(img):
     elif type(img) == torch.Tensor:
         img = Image.fromarray(img[0].numpy(), "RGB")
     x, y = img.size
-    img = img.resize((int(x/2), int(y/2)))
+    img = img.resize((int(x/4), int(y/4)))
     img = np.asarray(img)
     return img
 
@@ -83,8 +88,8 @@ def up_scailing(img, name=None, shape=None):
         x, y = shape[1], shape[0]
     else:
         x, y = img.size
-        x *= 2
-        y *= 2
+        x *= 4
+        y *= 4
     img = img.resize((int(x), int(y)))
 
     if name != None:
@@ -93,3 +98,32 @@ def up_scailing(img, name=None, shape=None):
 
     img = np.asarray(img)
     return img
+
+def get_gpu_usage():
+
+    def extract(elem, tag, drop_s):
+        text = elem.find(tag).text
+        if drop_s not in text: raise Exception(text)
+        text = text.replace(drop_s, "")
+        try:
+            return int(text)
+        except ValueError:
+            return float(text)
+
+    i = 0
+
+    d = OrderedDict()
+    d["time"] = time.time()
+
+    cmd = ['nvidia-smi', '-q', '-x']
+    cmd_out = subprocess.check_output(cmd)
+    gpu = xml.etree.ElementTree.fromstring(cmd_out).find("gpu")
+
+    util = gpu.find("utilization")
+    d["gpu_util"] = extract(util, "gpu_util", "%")
+
+    d["mem_used"] = extract(gpu.find("fb_memory_usage"), "used", "MiB")
+    d["mem_used_per"] = d["mem_used"] * 100 / 11171
+
+    now = time.strftime("%c")
+    print('\n\nGPU utilization: %s %%\nVRAM used: %s %%\n\n' % (d["gpu_util"],d["mem_used_per"]))

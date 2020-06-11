@@ -11,10 +11,10 @@ def Encode_MS(val_F1, val_P1, scales, model):
         if sc != 1.0:
             msv_F1, msv_P1 = downsample([val_F1, val_P1], sc)
             msv_F1, msv_P1 = ToCudaVariable([msv_F1, msv_P1], volatile=True)
-            ref[sc] = model.module.Encoder(msv_F1, msv_P1)[0]
+            ref[sc] = model.Encoder(msv_F1, msv_P1)[0]
         else:
             msv_F1, msv_P1 = ToCudaVariable([val_F1, val_P1], volatile=True)
-            ref[sc] = model.module.Encoder(msv_F1, msv_P1)[0]
+            ref[sc] = model.Encoder(msv_F1, msv_P1)[0]
 
     return ref
 
@@ -25,13 +25,13 @@ def Propagate_MS(ref, val_F2, val_P2, scales, model):
         if sc != 1.0:
             msv_F2, msv_P2 = downsample([val_F2, val_P2], sc)
             msv_F2, msv_P2 = ToCudaVariable([msv_F2, msv_P2], volatile=True)
-            r5, r4, r3, r2 = model.module.Encoder(msv_F2, msv_P2)
-            e2 = model.module.Decoder(r5, ref[sc], r4, r3, r2)
+            r5, r4, r3, r2 = model.Encoder(msv_F2, msv_P2)
+            e2 = model.Decoder(r5, ref[sc], r4, r3, r2)
             msv_E2[sc] = upsample(F.softmax(e2[0], dim=1)[:, 1].data.cpu(), (h, w))
         else:
             msv_F2, msv_P2 = ToCudaVariable([val_F2, val_P2], volatile=True)
-            r5, r4, r3, r2 = model.module.Encoder(msv_F2, msv_P2)
-            e2 = model.module.Decoder(r5, ref[sc], r4, r3, r2)
+            r5, r4, r3, r2 = model.Encoder(msv_F2, msv_P2)
+            e2 = model.Decoder(r5, ref[sc], r4, r3, r2)
             msv_E2[sc] = F.softmax(e2[0], dim=1)[:, 1].data.cpu()
 
     val_E2 = torch.zeros(val_P2.size())

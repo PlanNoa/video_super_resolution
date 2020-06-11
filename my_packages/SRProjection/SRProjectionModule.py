@@ -3,6 +3,7 @@ import torch
 
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
+from utils.tools import up_scailing, down_scailing, get_gpu_usage
 
 class FeedbackBlock(nn.Module):
     def __init__(self, num_features, num_groups, act_type, norm_type):
@@ -48,14 +49,19 @@ class FeedbackBlock(nn.Module):
         lr_features = []
         hr_features = []
         lr_features.append(x)
+
+        def tocpu(data):
+            return data.cpu()
+
         for idx in range(self.num_groups):
-            LD_L = torch.cat(tuple(lr_features), 1)  # when idx == 0, lr_features == [x]
+            LD_L = torch.cat(tuple(lr_features), 1)
             if idx > 0:
                 LD_L = self.uptranBlocks[idx - 1](LD_L)
             LD_H = self.upBlocks[idx](LD_L)
             hr_features.append(LD_H)
             LD_H = torch.cat(tuple(hr_features), 1)
-            if idx > 0:                LD_H = self.downtranBlocks[idx - 1](LD_H)
+            if idx > 0:
+                LD_H = self.downtranBlocks[idx - 1](LD_H)
             LD_L = self.downBlocks[idx](LD_H)
             lr_features.append(LD_L)
         del hr_features
@@ -69,17 +75,8 @@ class FeedbackBlock(nn.Module):
         self.should_reset = True
 
 class SRProjectionModule(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=64, upscale_factor=4, num_steps=4, num_groups=6, act_type='prelu',
+    def __init__(self, in_channels=3, out_channels=3, num_features=16, upscale_factor=4, num_steps=1, num_groups=3, act_type='prelu',
                  norm_type=None):
-        """
-        :param in_channels: Input image channels
-        :param out_channels: Output image channels
-        :param num_features: features
-        :param num_steps: 시계열 길이
-        :param num_groups:
-        :param act_type:
-        :param norm_type:
-        """
         super(SRProjectionModule, self).__init__()
 
         stride = 4
@@ -89,22 +86,16 @@ class SRProjectionModule(nn.Module):
         self.num_steps = num_steps
         self.num_features = num_features
         self.upscale_factor = upscale_factor
-        # RGB mean for DIV2K
         rgb_mean = (0.4488, 0.4371, 0.4040)
         rgb_std = (1.0, 1.0, 1.0)
         self.sub_mean = MeanShift(rgb_mean, rgb_std)
-        # LR feature extraction block
         self.conv_in = ConvBlock(in_channels, 4 * num_features,
                                  kernel_size=3,
                                  act_type=act_type, norm_type=norm_type)
         self.feat_in = ConvBlock(4 * num_features, num_features,
                                  kernel_size=1,
                                  act_type=act_type, norm_type=norm_type)
-        # basic block
         self.block = FeedbackBlock(num_features, num_groups, act_type, norm_type)
-        # reconstruction block
-        # uncomment for pytorch 0.4.0
-        # self.upsample = nn.Upsample(scale_factor=upscale_factor, mode='bilinear')
         self.out = DeconvBlock(num_features, num_features,
                                kernel_size=kernel_size, stride=stride, padding=padding,
                                act_type='prelu', norm_type=norm_type)
@@ -116,9 +107,6 @@ class SRProjectionModule(nn.Module):
     def forward(self, x):
         self._reset_state()
         x = self.sub_mean(x)
-        # uncomment for pytorch 0.4.0
-        # inter_res = self.upsample(x)
-        # comment for pytorch 0.4.0
         inter_res = nn.functional.interpolate(x, scale_factor=self.upscale_factor, mode='bilinear', align_corners=False)
         x = self.conv_in(x)
         x = self.feat_in(x)
@@ -127,8 +115,9 @@ class SRProjectionModule(nn.Module):
             h = self.block(x)
             h = torch.add(inter_res, self.conv_out(self.out(h)))
             h = self.add_mean(h)
-            outs.append(h)
-        return outs  # return output of every timesteps
+            outs.append(h.cpu())
+        outs = torch.tensor([torch.mean(out, 0).detach().numpy() for out in outs])
+        return outs
 
     def _reset_state(self):
         self.block.reset_state()

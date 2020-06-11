@@ -5,6 +5,7 @@ from .model import RGMP
 import numpy as np
 import torch
 from utils.object_utils import *
+from PIL import Image
 
 class VOSProjectionModule(Module):
     def __init__(self):
@@ -15,6 +16,7 @@ class VOSProjectionModule(Module):
         self.model.eval()
 
     def preprocess(self, input1, input2, optical_flow=None):
+        input1, input2 = list(map(Image.fromarray, list(map(np.array, [input1, input2]))))
         imgs = [input1, input2]
 
         mask = np.array(input1.convert("P"))
@@ -43,18 +45,19 @@ class VOSProjectionModule(Module):
         pad = ((lh, uh), (lw, uw))
 
         th_frames = torch.unsqueeze(torch.from_numpy(np.transpose(pad_frames, (3, 0, 1, 2)).copy()).float(), 0)
-        th_masks = torch.unsqueeze(torch.from_numpy(np.transpose(pad_masks, (3, 0, 1, 2)).copy()).float(), 0)
+        th_masks = torch.unsqueeze(torch.from_numpy(np.transpose(pad_masks, (3, 0, 1, 2)).copy()).long(), 0)
 
         return th_frames, th_masks, num_objects, pad
 
     def forward(self, input1, input2):
         all_F, all_M, num_objects, pad = self.preprocess(input1, input2)
-        all_F, all_M = all_F[0], all_M[0]
+        # all_F, all_M = all_F, all_M
         all_E = Infer_MO(all_F, all_M, 2, num_objects, self.model, scales=[0.5, 0.75, 1.0])
 
         E = all_E[0,:,0].numpy()
         E = ToLabel(E)
         (lh, uh), (lw, uw) = pad
-        E = E[lh[0]:-uh[0], lw[0]:-uw[0]]
+        E = E[lh:-uh, lw:-uw]
+        # E = E[lh[0]:-uh[0], lw[0]:-uw[0]]
 
         return E

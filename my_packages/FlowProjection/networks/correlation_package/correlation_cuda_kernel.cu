@@ -556,7 +556,7 @@ int correlation_backward_cuda_kernel(
   // check for errors
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
-    printf("error in correlation_backward_cuda_kernel: %s\n", cudaGetErrorString(err));
+    // printf("error in correlation_backward_cuda_kernel: %s\n", cudaGetErrorString(err));
     return 0;
   }
 
