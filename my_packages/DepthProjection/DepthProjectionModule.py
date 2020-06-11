@@ -25,7 +25,8 @@ class DepthProjectionModule():
 
         import matplotlib.pyplot as plt
         p = p.detach().numpy()
-        plt.imshow(p)
+        plt.plot(p)
+        plt.savefig('a.png')
         plt.show()
 
 
