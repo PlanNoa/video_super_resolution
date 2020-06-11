@@ -60,7 +60,6 @@ class VSR(torch.nn.Module):
         # output shape: [1, 3, y, x]
         output = torch.tensor(output).transpose(1, 3).transpose(1, 2).type(dtype=torch.float32)
 
-        print(np.array(high_frames).shape)
         high_frames[1][0] = output
         loss = self.loss_calculate(output, target, high_frames) if train else None
         return output, loss

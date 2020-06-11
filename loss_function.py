@@ -1,8 +1,8 @@
 import torch
 from torch import nn
-from utils.vgg import vgg16
 import numpy as np
 from my_packages.VOSProjection import VOSProjectionModule
+from utils.vgg import vgg16
 
 class _SR_loss(nn.Module):
     def __init__(self):
@@ -16,7 +16,11 @@ class _SR_loss(nn.Module):
         self.tv_loss = TVLoss()
 
     def forward(self, output, target):
-        perception_loss = self.mse_loss(self.loss_network(output), self.loss_network(target))
+        output = output.transpose(1, 3).transpose(2, 3).cuda()
+        target = torch.tensor([target], dtype=torch.float32).transpose(1, 3).transpose(2, 3).cuda()
+        p_output = self.loss_network(output).type(torch.float32)
+        p_target = self.loss_network(target).type(torch.float32)
+        perception_loss = self.mse_loss(p_output, p_target)
         image_loss = self.mse_loss(output, target)
         tv_loss = self.tv_loss(output)
         return image_loss + 0.006 * perception_loss + 2e-8 * tv_loss
