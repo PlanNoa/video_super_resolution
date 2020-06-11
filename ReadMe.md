@@ -22,3 +22,7 @@
 - count_object function on object_utils.py
 - Inference function on main.py
 - etc..
+
+#### Copyright
+
+- The code and development ideas for this project are belonging to PlanNoa and Yudonggeun.
