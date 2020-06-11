@@ -19,13 +19,12 @@ class DepthProjectionModule():
 
     def forward(self, input):
         p = self.model.inference(input)
-        print('a', p.size())
 
         p = torch.squeeze(p[0])
 
+        import cv2
         import matplotlib.pyplot as plt
         p = p.detach().numpy()
-        p = p.transpose([2, 0, 1])
         plt.imshow(p)
         plt.savefig('a.png')
         plt.show()
