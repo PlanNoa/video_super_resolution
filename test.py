@@ -17,9 +17,9 @@ img = img[h_offset:h_offset + input_frame_size[1], w_offset: w_offset + input_fr
 img = np.transpose(img, (2,0,1))
 img = img.astype("float32")/ 255.0
 import matplotlib.pyplot as plt
-import matplotlib.image as img
+import matplotlib.image as imge
 
-x = img.imread(img)
+x = imge.imread(img)
 plt.imshow(x)
 plt.savefig('b.png')
 plt.show()
