@@ -16,7 +16,10 @@ img = img[h_offset:h_offset + input_frame_size[1], w_offset: w_offset + input_fr
 
 img = np.transpose(img, (2,0,1))
 img = img.astype("float32")/ 255.0
-
+import matplotlib.pyplot as plt
+        plt.imshow(img)
+        plt.savefig('b.png')
+        plt.show()
 img = torch.from_numpy(img)
 #img = torch.cat([img, img], dim=0)
 img = torch.stack([img, img], dim=0)

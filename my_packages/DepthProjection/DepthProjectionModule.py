@@ -18,10 +18,7 @@ class DepthProjectionModule():
         self.model.switch_to_eval()
 
     def forward(self, input):
-        import matplotlib.pyplot as plt
-        plt.imshow(input)
-        plt.savefig('b.png')
-        plt.show()
+
 
         p = self.model.inference(input)
 
