@@ -17,8 +17,10 @@ print(np.shape(img))
 
 img = np.transpose(img, (2,0,1))
 img = img.astype("float32")/ 255.0
-import matplotlib.pyplot as plt
-img = img.thumbnail((256, 448))
+from PIL import Image
+
+img = Image.fromarray(img)
+img = img.resize((256, 448))
 img = torch.from_numpy(img)
 #img = torch.cat([img, img], dim=0)
 img = torch.stack([img, img], dim=0)
