@@ -99,6 +99,10 @@ def up_scailing(img, name=None, shape=None):
     img = np.asarray(img)
     return img
 
+def maskprocess(mask):
+    return np.logical_not(np.stack((mask,)*3, axis=-1))
+
+
 def get_gpu_usage():
 
     def extract(elem, tag, drop_s):
@@ -127,3 +131,6 @@ def get_gpu_usage():
 
     now = time.strftime("%c")
     print('\n\nGPU utilization: %s %%\nVRAM used: %s %%\n\n' % (d["gpu_util"],d["mem_used_per"]))
+
+def torch2numpy(i):
+    return i[0].numpy()

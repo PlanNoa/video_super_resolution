@@ -1,8 +1,9 @@
 import torch
 from torch import nn
 import numpy as np
-from my_packages.VOSProjection import VOSProjectionModule
+from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
 from utils.vgg import vgg16
+from utils.tools import maskprocess
 
 class _SR_loss(nn.Module):
     def __init__(self):
@@ -17,9 +18,9 @@ class _SR_loss(nn.Module):
 
     def forward(self, output, target):
         output = output.transpose(1, 3).transpose(2, 3).cuda()
-        target = torch.tensor([target], dtype=torch.float32).transpose(1, 3).transpose(2, 3).cuda()
-        p_output = self.loss_network(output).type(torch.float32)
-        p_target = self.loss_network(target).type(torch.float32)
+        target = target.transpose(1, 3).transpose(2, 3).cuda()
+        p_output = self.loss_network(output)
+        p_target = self.loss_network(target)
         perception_loss = self.mse_loss(p_output, p_target)
         image_loss = self.mse_loss(output, target)
         tv_loss = self.tv_loss(output)
@@ -56,27 +57,25 @@ class _Flow_loss(nn.Module):
         for i in range(len(outputs) - 1):
             '''need to test which one is better'''
             flow_loss.append(self.SR_loss(outputs[i], outputs[i + 1]))
-            # flow_loss.append(self.mse_loss(outputs[i], outputs[i + 1]))
-        return 0.005 * np.mean(outputs)
+            # flow_loss.append(self.mse_loss(outputs[i], outputs[i + 1]).cpu().numpy())
+        return 0.005 * torch.mean(torch.tensor(flow_loss))
 
 class _loss4object(nn.Module):
-    def __iter__(self):
+    def __init__(self):
         super(_loss4object, self).__init__()
-        self.VOS = VOSProjectionModule()
+        self.VOS = VOSProjectionModule().eval().cpu()
 
-    def forward(self, frames, target=None):
-        if target != None:
-            # for SRloss
-            obj_segmentation = self.VOS(frames[0], frames[1])
+    def forward(self, outputs, target=None, SR=False):
+        if SR:
+            obj_segmentation = self.VOS(outputs[0][0], outputs[1][0])
             num_objects = len(np.unique(obj_segmentation.flatten()))
-            masks = [obj_segmentation==i for i in range(num_objects)]
-            masked = [(np.bitwise_and(frames[1], mask), np.bitwise_and(target, mask)) for mask in masks]
-            return masked
-
+            masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
+            masked_outputs = [(torch.tensor(np.ma.MaskedArray(np.array(outputs[1], dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda(),
+                               torch.tensor(np.ma.MaskedArray(np.array(target, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in masks]
+            return masked_outputs
         else:
-            # for Flowloss
-            obj_segmentation = self.VOS(frames[0], frames[1])
+            obj_segmentation = self.VOS(outputs[0][0], outputs[1][0])
             num_objects = len(np.unique(obj_segmentation.flatten()))
-            masks = [obj_segmentation==i for i in range(num_objects)]
-            masked_outputs = [[np.bitwise_and(output, mask) for output in frames] for mask in masks]
+            masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
+            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in masks]
             return masked_outputs

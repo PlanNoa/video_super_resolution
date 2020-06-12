@@ -75,7 +75,7 @@ class FeedbackBlock(nn.Module):
         self.should_reset = True
 
 class SRProjectionModule(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=16, upscale_factor=4, num_steps=1, num_groups=3, act_type='prelu',
+    def __init__(self, in_channels=3, out_channels=3, num_features=12, upscale_factor=4, num_steps=1, num_groups=2, act_type='prelu',
                  norm_type=None):
         super(SRProjectionModule, self).__init__()
 

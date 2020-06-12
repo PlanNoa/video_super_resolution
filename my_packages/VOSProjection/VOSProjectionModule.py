@@ -16,10 +16,10 @@ class VOSProjectionModule(Module):
         self.model.eval()
 
     def preprocess(self, input1, input2, optical_flow=None):
-        input1, input2 = list(map(Image.fromarray, list(map(np.array, [input1, input2]))))
-        imgs = [input1, input2]
+        imgs = [np.array(img, dtype=np.uint8) for img in [input1, input2]]
+        imgs = list(map(Image.fromarray, imgs))
 
-        mask = np.array(input1.convert("P"))
+        mask = np.array(imgs[0].convert("P"))
         num_objects = count_objects(optical_flow) if optical_flow else 10
         shape = np.shape(mask)
 
