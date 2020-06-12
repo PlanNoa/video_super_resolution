@@ -18,11 +18,12 @@ class DepthProjectionModule():
         self.model.switch_to_eval()
 
     def forward(self, input):
+
+
         p = self.model.inference(input)
 
         p = torch.squeeze(p[0])
 
-        import cv2
         import matplotlib.pyplot as plt
         p = p.detach().numpy()
         plt.imshow(p)
