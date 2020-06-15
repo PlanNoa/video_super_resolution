@@ -64,18 +64,17 @@ class _loss4object(nn.Module):
     def __init__(self):
         super(_loss4object, self).__init__()
         self.VOS = VOSProjectionModule().eval().cpu()
+        self.masks = None
 
     def forward(self, outputs, target=None, SR=False):
-        if SR:
+        if type(self.masks)==type(None):
             obj_segmentation = self.VOS(outputs[0][0], outputs[1][0])
             num_objects = len(np.unique(obj_segmentation.flatten()))
-            masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
+            self.masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
+        if SR:
             masked_outputs = [(torch.tensor(np.ma.MaskedArray(np.array(outputs[1], dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda(),
-                               torch.tensor(np.ma.MaskedArray(np.array(target, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in masks]
+                               torch.tensor(np.ma.MaskedArray(np.array(target, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in self.masks]
             return masked_outputs
         else:
-            obj_segmentation = self.VOS(outputs[0][0], outputs[1][0])
-            num_objects = len(np.unique(obj_segmentation.flatten()))
-            masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
-            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in masks]
+            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in self.masks]
             return masked_outputs

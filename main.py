@@ -133,12 +133,13 @@ if __name__ == '__main__':
                 high_frame = np.array([[hf] for hf in high_frame])
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
+                loss = fakeloss(output, torch.tensor(target, dtype=torch.float32))
                 loss_val = torch.mean(losses)
                 total_loss += loss_val.item()
-                print(output.grad)
+                loss.data = loss_val.data
 
                 if not is_validate:
-                    loss_val.backward()
+                    loss.backward()
                     optimizer.step()
 
             title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
@@ -168,12 +169,12 @@ if __name__ == '__main__':
                 is_best = True
 
             checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-            tools.save_checkpoint({   'arch' : args.model,
+            tools.save_checkpoint({   'arch' : args.model_name,
                                       'epoch': epoch,
                                       'state_dict': SRmodel.model.state_dict(),
                                       'best_EPE': best_err,
                                       'optimizer': optimizer},
-                                      is_best, args.save, args.model)
+                                      is_best, args.save, args.model_name)
             checkpoint_progress.update(1)
             checkpoint_progress.close()
             offset += 1
@@ -185,11 +186,11 @@ if __name__ == '__main__':
 
             if ((epoch - 1) % args.validation_frequency) == 0:
                 checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-                tools.save_checkpoint({   'arch' : args.model,
+                tools.save_checkpoint({   'arch' : args.model_name,
                                           'epoch': epoch,
                                           'state_dict': SRmodel.model.state_dict(),
                                           'best_EPE': train_loss},
-                                          False, args.save, args.model, filename = 'train-checkpoint.pth.tar')
+                                          False, args.save, args.model_name, filename = 'train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 
