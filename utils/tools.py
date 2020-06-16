@@ -6,7 +6,7 @@ import json
 import subprocess
 import sys
 import xml.etree.ElementTree
-
+from torch.nn.functional import interpolate
 
 class StaticCenterCrop(object):
     def __init__(self, image_size, crop_size):
@@ -82,21 +82,13 @@ def down_scailing(img):
     img = np.asarray(img)
     return img
 
-def up_scailing(img, name=None, shape=None):
-    img = Image.fromarray(img, "RGB")
-    if shape != None:
-        x, y = shape[1], shape[0]
-    else:
-        x, y = img.size
-        x *= 4
-        y *= 4
-    img = img.resize((int(x), int(y)))
+def up_scailing(img, shape, name=None):
+    img = interpolate(img, shape)
 
     if name != None:
         import time
         img.save(str(time.time()) + name+".png")
 
-    img = np.asarray(img)
     return img
 
 def maskprocess(mask):

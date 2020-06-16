@@ -16,7 +16,7 @@ class VOSProjectionModule(Module):
         self.model.eval()
 
     def preprocess(self, input1, input2, optical_flow=None):
-        imgs = [np.array(img, dtype=np.uint8) for img in [input1, input2]]
+        imgs = [np.array(img, dtype=np.uint8) for img in [input1.cpu(), input2.cpu()]]
         imgs = list(map(Image.fromarray, imgs))
 
         mask = np.array(imgs[0].convert("P"))

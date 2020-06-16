@@ -30,7 +30,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--validation_frequency', type=int, default=5, help='validate every n epochs')
     parser.add_argument('--validation_n_batches', type=int, default=-1)
-    parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
+    parser.add_argument('--resume', default='', type=str, metavar='PATH',
+                        help='path to latest checkpoint (default: none)')
 
     parser.add_argument('--skip_training', action='store_true')
     parser.add_argument('--skip_validation', action='store_true')
@@ -40,9 +41,9 @@ if __name__ == '__main__':
 
     with tools.TimerBlock("Parsing Arguments") as block:
         args = parser.parse_args()
-        if args.number_gpus < 0 : args.number_gpus = torch.cuda.device_count()
+        if args.number_gpus < 0: args.number_gpus = torch.cuda.device_count()
 
-        parser.add_argument('--IGNORE',  action='store_true')
+        parser.add_argument('--IGNORE', action='store_true')
         defaults = vars(parser.parse_args(['--IGNORE']))
 
         for argument, value in sorted(vars(args).items()):
@@ -105,6 +106,7 @@ if __name__ == '__main__':
         else:
             optimizer = torch.optim.Adam(SRmodel.parameters())
 
+
     def train(args, epoch, data_loader, model, optimizer, is_validate=False, offset=0):
         total_loss = 0
         fakeloss = MSELoss()
@@ -113,7 +115,9 @@ if __name__ == '__main__':
             model.eval()
             title = 'Validating Epoch {}'.format(epoch)
             args.validation_n_batches = np.inf if args.validation_n_batches < 0 else args.validation_n_batches
-            progress = tqdm(tools.IteratorTimer(data_loader), ncols=100, total=np.minimum(len(data_loader), args.validation_n_batches), leave=True, position=offset, desc=title)
+            progress = tqdm(tools.IteratorTimer(data_loader), ncols=100,
+                            total=np.minimum(len(data_loader), args.validation_n_batches), leave=True, position=offset,
+                            desc=title)
         else:
             model.train()
             title = 'Training Epoch {}'.format(epoch)
@@ -123,9 +127,13 @@ if __name__ == '__main__':
                             leave=True, position=offset, desc=title)
 
         for batch_idx, datas in enumerate(progress):
-            data = np.array([list(map(down_scailing, d)) for d in datas])
-            target = np.array([list(map(torch2numpy, d))[1] for d in datas])
-            high_frames = np.array([list(map(torch2numpy, d)) for d in datas])
+            data = torch.tensor([list(map(down_scailing, d)) for d in datas], dtype=torch.float32)
+            target = torch.tensor([d[1].numpy() for d in datas], dtype=torch.float32)
+            high_frames = torch.tensor([list(map(np.array, d)) for d in datas], dtype=torch.float32)
+            if args.cuda and args.number_gpus > 0:
+                data = data.cuda()
+                target = target.cuda()
+                high_frames = high_frames.cuda()
 
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):
@@ -134,63 +142,85 @@ if __name__ == '__main__':
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
                 loss = fakeloss(output, torch.tensor(target, dtype=torch.float32))
-                loss_val = torch.mean(losses)
-                total_loss += loss_val.item()
-                loss.data = loss_val.data
+                # loss_val = torch.mean(losses)
+                # total_loss += loss_val.item()
+                # loss.data = loss_val.data
+                total_loss += loss.item()
 
                 if not is_validate:
+                    old_state_dict = {}
+                    for key in model.state_dict():
+                        old_state_dict[key] = model.state_dict()[key].clone()
+
                     loss.backward()
                     optimizer.step()
+                    print(loss)
+
+                    new_state_dict = {}
+                    for key in model.state_dict():
+                        new_state_dict[key] = model.state_dict()[key].clone()
+
+                    c = 0
+                    for key in old_state_dict:
+                        if not (old_state_dict[key] == new_state_dict[key]).all():
+                            c += 1
+                            print('Diff in {}'.format(key))
+                    if c == 0:
+                        print('All Same')
 
             title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
             progress.set_description(title)
 
-            if (is_validate and (batch_idx == args.validation_n_batches)) or\
+            if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
                 progress.close()
                 break
 
         return total_loss / float(batch_idx + 1), (batch_idx + 1)
 
+
     best_err = 1e8
-    progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100, desc='Overall Progress', leave=True, position=True)
+    progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100,
+                    desc='Overall Progress', leave=True, position=True)
     offset = 1
     last_epoch_time = progress._time()
     global_iteration = 0
 
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
-            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel, optimizer=optimizer, is_validate=True, offset=offset)
+            validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel,
+                                       optimizer=optimizer, is_validate=True, offset=offset)
             offset += 1
 
-            is_best=False
+            is_best = False
             if validation_loss < best_err:
                 best_err = validation_loss
                 is_best = True
 
             checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-            tools.save_checkpoint({   'arch' : args.model_name,
-                                      'epoch': epoch,
-                                      'state_dict': SRmodel.model.state_dict(),
-                                      'best_EPE': best_err,
-                                      'optimizer': optimizer},
-                                      is_best, args.save, args.model_name)
+            tools.save_checkpoint({'arch': args.model_name,
+                                   'epoch': epoch,
+                                   'state_dict': SRmodel.model.state_dict(),
+                                   'best_EPE': best_err,
+                                   'optimizer': optimizer},
+                                  is_best, args.save, args.model_name)
             checkpoint_progress.update(1)
             checkpoint_progress.close()
             offset += 1
 
         if not args.skip_training:
-            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel, optimizer=optimizer, offset=offset)
+            train_loss, iterations = train(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel,
+                                           optimizer=optimizer, offset=offset)
             global_iteration += iterations
             offset += 1
 
             if ((epoch - 1) % args.validation_frequency) == 0:
                 checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
-                tools.save_checkpoint({   'arch' : args.model_name,
-                                          'epoch': epoch,
-                                          'state_dict': SRmodel.model.state_dict(),
-                                          'best_EPE': train_loss},
-                                          False, args.save, args.model_name, filename = 'train-checkpoint.pth.tar')
+                tools.save_checkpoint({'arch': args.model_name,
+                                       'epoch': epoch,
+                                       'state_dict': SRmodel.model.state_dict(),
+                                       'best_EPE': train_loss},
+                                      False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 

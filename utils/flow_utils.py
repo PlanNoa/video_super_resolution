@@ -59,24 +59,15 @@ def writeFlow(filename, uv, v=None):
     f.close()
 
 
-# ref: https://github.com/sampepose/flownet2-tf/
-# blob/18f87081db44939414fc4a48834f9e0da3e69f4c/src/flowlib.py#L240
 def visulize_flow_file(flow_filename, save_dir=None):
     flow_data = readFlow(flow_filename)
     img = flow2img(flow_data)
-    # plt.imshow(img)
-    # plt.show()
     if save_dir:
         idx = flow_filename.rfind("/") + 1
         plt.imsave(os.path.join(save_dir, "%s-vis.png" % flow_filename[idx:-4]), img)
 
 
 def flow2img(flow_data):
-    """
-    convert optical flow into color image
-    :param flow_data:
-    :return: color image
-    """
     # print(flow_data.shape)
     # print(type(flow_data))
     u = flow_data[:, :, 0]
@@ -87,16 +78,6 @@ def flow2img(flow_data):
     pr2 = abs(v) > UNKNOW_FLOW_THRESHOLD
     idx_unknown = (pr1 | pr2)
     u[idx_unknown] = v[idx_unknown] = 0
-
-    # get max value in each direction
-    maxu = -999.
-    maxv = -999.
-    minu = 999.
-    minv = 999.
-    maxu = max(maxu, np.max(u))
-    maxv = max(maxv, np.max(v))
-    minu = min(minu, np.min(u))
-    minv = min(minv, np.min(v))
 
     rad = np.sqrt(u ** 2 + v ** 2)
     maxrad = max(-1, np.max(rad))
@@ -112,13 +93,6 @@ def flow2img(flow_data):
 
 
 def compute_color(u, v):
-    """
-    compute optical flow color map
-    :param u: horizontal optical flow
-    :param v: vertical optical flow
-    :return:
-    """
-
     height, width = u.shape
     img = np.zeros((height, width, 3))
 

@@ -3,7 +3,6 @@ from utils.tools import StaticCenterCrop
 from utils.flow_utils import flow2img
 from .models import FlowNet2
 import torch
-import numpy as np
 
 class FlowProjectionModule(Module):
     def __init__(self, image_size=None, render_size=None):
@@ -28,12 +27,10 @@ class FlowProjectionModule(Module):
         images = [input1, input2]
         images = list(map(self.cropper, images))
 
-        images = np.array(images).transpose(3, 0, 1, 2)
-        images = torch.from_numpy(images.astype(np.float32))
-        images = images.unsqueeze(0).cuda()
+        images = torch.stack(images).transpose(0, 1).transpose(0, 2).transpose(0, 3)
+        images = images.unsqueeze(0)
 
         result = self.net(images).squeeze()
-        flow = result.data.cpu().numpy().transpose(1, 2, 0)
-        result = flow2img(flow)
-
+        flow = result.transpose(1, 2).transpose(0, 2)
+        result = torch.tensor(flow2img(flow.cpu().numpy()), dtype=torch.float32).cuda()
         return result
