@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import numpy as np
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
-from utils.vgg import vgg16
+from utils.models import vgg16
 from utils.tools import maskprocess
 
 class _SR_loss(nn.Module):
