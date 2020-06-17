@@ -138,7 +138,6 @@ if __name__ == '__main__':
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):
                 optimizer.zero_grad() if not is_validate else None
-                high_frame = np.array([[hf] for hf in high_frame])
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
                 loss = fakeloss(output, torch.tensor(target, dtype=torch.float32))

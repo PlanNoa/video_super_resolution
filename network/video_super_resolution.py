@@ -40,7 +40,6 @@ class VSR(torch.nn.Module):
             # output shape: [1, 3, y, x]
 
             data = torch.stack([estimated_image[0], interpolate(output, data.shape[2:])[0], data[2]])
-            print(data.shape)
             optical_flow = torch.stack([self.FlowModule(data[0].clone().transpose(0, 1).transpose(1, 2),
                                                         data[1].clone().transpose(0, 1).transpose(1, 2)),
                                         self.FlowModule(data[1].clone().transpose(0, 1).transpose(1, 2),
@@ -56,25 +55,33 @@ class VSR(torch.nn.Module):
             depth_map = interpolate(depth_map.transpose(1, 3).transpose(2, 3), data.shape[2:])
             VOSmask = maskprocess(self.VOSModule(data[0].transpose(0, 1).transpose(1, 2), data[1].transpose(0, 1).transpose(1, 2)) != 0)
 
-        masked_estimated_image = torch.tensor([np.ma.MaskedArray(data[1].cpu().numpy(), VOSmask, fill_value=0).filled()], dtype=torch.float32, requires_grad=True)
-        masked_estimated_image = interpolate(masked_estimated_image.transpose(1, 3).transpose(2, 3))
+        masked_estimated_image = torch.tensor([np.ma.MaskedArray(data[1].cpu().numpy(), VOSmask, fill_value=0).filled()], dtype=torch.float32, requires_grad=True).cuda()
+        print(masked_estimated_image.shape)
+        masked_estimated_image = interpolate(masked_estimated_image, data.shape[2:])
         # data = torch.tensor(data, dtype=torch.float32, requires_grad=True)
         data.requires_grad = True
+        print(data.shape, optical_flow.shape, depth_map.shape, masked_estimated_image.shape)
         input = torch.cat((data, optical_flow, depth_map, masked_estimated_image), 0)
-        input = input.transpose(1, 3).transpose(2, 3).cuda()
+        # input = input.transpose(1, 3).transpose(2, 3).cuda()
         # input shape:[8, 3, y/4, x/4]
 
         output = self.model(input)
         # output shape: [1, 3, y, x]
+
         output = torch.tensor(output, dtype=torch.float32, requires_grad=True).transpose(1, 3).transpose(1, 2)
         high_frames[1][0] = torch.tensor(output, requires_grad=False)
-        loss = self.loss_calculate(torch.tensor([target], dtype=torch.float32), torch.tensor(high_frames, dtype=torch.float32)) if train else None
+        print(type(high_frames))
+        print(target.shape, high_frames.shape)
+        loss = self.loss_calculate(target, high_frames) if train else None
         return output, loss
 
     def loss_calculate(self, target, outputs):
         with torch.no_grad():
             genSR_loss = self.SR_loss(outputs[1], target)
+
+            # error
             objSR_loss = torch.mean(torch.tensor([self.SR_loss(i, j) for i, j in self.loss4object(outputs[:2], target, SR=True)]))
+
             Flow_loss = self.Flow_loss(outputs)
             objFlow_loss = torch.mean(torch.tensor([self.Flow_loss(output) for output in self.loss4object(outputs)]))
             return torch.tensor([genSR_loss, objSR_loss, Flow_loss, objFlow_loss])
