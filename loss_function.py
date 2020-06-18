@@ -17,6 +17,8 @@ class _SR_loss(nn.Module):
         self.tv_loss = TVLoss()
 
     def forward(self, output, target):
+        print(output.shape)
+        print(target.shape)
         output = output.transpose(1, 3).transpose(2, 3).cuda()
         target = target.transpose(1, 3).transpose(2, 3).cuda()
         p_output = self.loss_network(output)
@@ -53,12 +55,10 @@ class _Flow_loss(nn.Module):
         self.SR_loss = _SR_loss()
 
     def forward(self, outputs):
-        flow_loss = []
-        for i in range(len(outputs) - 1):
-            '''need to test which one is better'''
-            flow_loss.append(self.SR_loss(outputs[i], outputs[i + 1]))
-            # flow_loss.append(self.mse_loss(outputs[i], outputs[i + 1]).cpu().numpy())
-        return 0.005 * torch.mean(torch.tensor(flow_loss))
+        #need to test which one is better
+        flow_loss = torch.mean(torch.stack((self.SR_loss(outputs[0:1], outputs[1:2]), self.SR_loss(outputs[1:2], outputs[2:3]))))
+        # flow_loss = torch.mean(self.mse_loss(outputs[0:1], outputs[1:2]), self.mse_loss(outputs[1:2], outputs[2:3])
+        return 0.005 * flow_loss
 
 class _loss4object(nn.Module):
     def __init__(self):
@@ -68,13 +68,13 @@ class _loss4object(nn.Module):
 
     def forward(self, outputs, target=None, SR=False):
         if type(self.masks)==type(None):
-            obj_segmentation = self.VOS(outputs[0][0], outputs[1][0])
+            obj_segmentation = self.VOS(outputs[0], outputs[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
             self.masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
         if SR:
-            masked_outputs = [(torch.tensor(np.ma.MaskedArray(np.array(outputs[1], dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda(),
-                               torch.tensor(np.ma.MaskedArray(np.array(target, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in self.masks]
+            masked_outputs = [(torch.unsqueeze(torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32), 0).cuda(),
+                               torch.tensor(np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in self.masks]
             return masked_outputs
         else:
-            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output, dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in self.masks]
+            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in self.masks]
             return masked_outputs
