@@ -137,13 +137,15 @@ if __name__ == '__main__':
 
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):
+                import time
+                t = time.time()
                 optimizer.zero_grad() if not is_validate else None
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
-                loss = fakeloss(output, torch.tensor(target, dtype=torch.float32))
-                # loss_val = torch.mean(losses)
-                # total_loss += loss_val.item()
-                # loss.data = loss_val.data
+                loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
+                loss_val = torch.mean(losses)
+                total_loss += loss_val.item()
+                loss.data = loss_val.data
                 total_loss += loss.item()
 
                 if not is_validate:
@@ -153,7 +155,6 @@ if __name__ == '__main__':
 
                     loss.backward()
                     optimizer.step()
-                    print(loss)
 
                     new_state_dict = {}
                     for key in model.state_dict():
@@ -166,6 +167,7 @@ if __name__ == '__main__':
                             print('Diff in {}'.format(key))
                     if c == 0:
                         print('All Same')
+                    print(time.time() - t)
 
             title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
             progress.set_description(title)

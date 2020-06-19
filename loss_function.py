@@ -17,8 +17,6 @@ class _SR_loss(nn.Module):
         self.tv_loss = TVLoss()
 
     def forward(self, output, target):
-        print(output.shape)
-        print(target.shape)
         output = output.transpose(1, 3).transpose(2, 3).cuda()
         target = target.transpose(1, 3).transpose(2, 3).cuda()
         p_output = self.loss_network(output)
@@ -76,5 +74,5 @@ class _loss4object(nn.Module):
                                torch.tensor(np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda()) for mask in self.masks]
             return masked_outputs
         else:
-            masked_outputs = [[torch.tensor(np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled(), dtype=torch.float32).cuda() for output in outputs] for mask in self.masks]
+            masked_outputs = [torch.tensor([np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled() for output in outputs], dtype=torch.float32).cuda() for mask in self.masks]
             return masked_outputs
