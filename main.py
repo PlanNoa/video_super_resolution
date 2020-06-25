@@ -11,6 +11,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 import warnings
 from torch.nn import MSELoss
+from torch.nn.functional import interpolate
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
@@ -127,9 +128,13 @@ if __name__ == '__main__':
                             leave=True, position=offset, desc=title)
 
         for batch_idx, datas in enumerate(progress):
-            data = torch.tensor([list(map(down_scailing, d)) for d in datas], dtype=torch.float32)
-            target = torch.tensor([d[1].numpy() for d in datas], dtype=torch.float32)
-            high_frames = torch.squeeze(torch.tensor([list(map(np.array, d)) for d in datas], dtype=torch.float32))
+            data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
+                                                         (int(d.shape[1] / 4), int(d.shape[2] / 4))).transpose(1,
+                                                                                                               3).transpose(
+                1, 2) for d in dd]) for dd in datas]).squeeze()
+            print(data.shape)
+            target = torch.stack([d[1] for d in datas]).type(torch.float32)
+            high_frames = torch.stack([torch.stack(d) for d in datas]).squeeze().type(torch.float32)
             if args.cuda and args.number_gpus > 0:
                 data = data.cuda()
                 target = target.cuda()
@@ -137,21 +142,21 @@ if __name__ == '__main__':
 
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):
+                old_state_dict = {}
+                for key in model.state_dict():
+                    old_state_dict[key] = model.state_dict()[key].clone()
                 import time
                 t = time.time()
                 optimizer.zero_grad() if not is_validate else None
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
-                loss_val = torch.mean(losses)
-                total_loss += loss_val.item()
-                loss.data = loss_val.data
+                # loss_val = torch.mean(losses)
+                # total_loss += loss_val.item()
+                # loss.data = loss_val.data
                 total_loss += loss.item()
 
                 if not is_validate:
-                    old_state_dict = {}
-                    for key in model.state_dict():
-                        old_state_dict[key] = model.state_dict()[key].clone()
 
                     loss.backward()
                     optimizer.step()
@@ -165,6 +170,7 @@ if __name__ == '__main__':
                         if not (old_state_dict[key] == new_state_dict[key]).all():
                             c += 1
                             print('Diff in {}'.format(key))
+
                     if c == 0:
                         print('All Same')
                     print(time.time() - t)

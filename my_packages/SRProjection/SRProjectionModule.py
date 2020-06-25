@@ -3,7 +3,6 @@ import torch
 
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
-from utils.tools import up_scailing, down_scailing, get_gpu_usage
 
 class FeedbackBlock(nn.Module):
     def __init__(self, num_features, num_groups, act_type, norm_type):
@@ -115,8 +114,8 @@ class SRProjectionModule(nn.Module):
             h = self.block(x)
             h = torch.add(inter_res, self.conv_out(self.out(h)))
             h = self.add_mean(h)
-            outs.append(h.cpu())
-        outs = torch.tensor([torch.mean(out, 0).detach().numpy() for out in outs])
+            outs.append(h)
+        outs = torch.stack([torch.mean(out, 0) for out in outs], 0)
         return outs
 
     def _reset_state(self):
