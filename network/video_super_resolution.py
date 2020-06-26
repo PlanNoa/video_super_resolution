@@ -1,15 +1,13 @@
 import torch
 import numpy as np
-from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
-from loss_function import _SR_loss, _Flow_loss, _loss4object
-from my_packages.DepthProjection.DepthProjectionModule \
-    import DepthProjectionModule
-from my_packages.FlowProjection.FlowProjectionModule \
-    import FlowProjectionModule
-from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
-from utils.tools import up_scailing, down_scailing, get_gpu_usage, maskprocess
 from PIL import Image
 from torch.nn.functional import interpolate
+from loss_function import _SR_loss, _Flow_loss, _loss4object
+from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
+from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
+from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
+from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
+from utils.tools import up_scailing, down_scailing, get_gpu_usage, maskprocess
 
 
 class VSR(torch.nn.Module):
@@ -77,6 +75,13 @@ class VSR(torch.nn.Module):
         return output, loss
 
     def loss_calculate(self, target, outputs):
+        """
+        target and output loss calculate
+
+        :param target: Target
+        :param outputs: Model output
+        :return: target and outputs GAP
+        """
         with torch.no_grad():
             genSR_loss = self.SR_loss(outputs[0:1], target)
             objSR_loss = torch.mean(
