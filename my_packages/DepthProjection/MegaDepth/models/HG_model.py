@@ -1,10 +1,6 @@
-import numpy as np
 import torch
-import os
 from torch.autograd import Variable
 from .base_model import BaseModel
-import sys
-# import pytorch_DIW_scratch
 import my_packages.DepthProjection.MegaDepth.pytorch_DIW_scratch as pytorch_DIW_scratch
 
 
@@ -15,7 +11,7 @@ class HGModel(BaseModel):
     def __init__(self, opt, pretrained=None):
         BaseModel.initialize(self, opt)
 
-        # print("===========================================LOADING Hourglass NETWORK====================================================")
+        # print("================================LOADING Hourglass NETWORK=========================================")
         model = pytorch_DIW_scratch.pytorch_DIW_scratch
         # model_temp = model
         # model= torch.nn.parallel.DataParallel(model, device_ids = [0,1])
@@ -101,8 +97,8 @@ class HGModel(BaseModel):
             # print(x_A_arr.size())
             # print(y_A_arr.size())
 
-            z_A_arr = torch.gather(torch.index_select(predict_depth, 1, x_A_arr.cuda()), 0, y_A_arr.view(1,
-                                                                                                         -1).cuda())  # predict_depth:index(2, x_A_arr):gather(1, y_A_arr:view(1, -1))
+            z_A_arr = torch.gather(torch.index_select(predict_depth, 1, x_A_arr.cuda()), 0, y_A_arr.view(1,-1).cuda())
+            # predict_depth:index(2, x_A_arr):gather(1, y_A_arr:view(1, -1))
             z_B_arr = torch.gather(torch.index_select(predict_depth, 1, x_B_arr.cuda()), 0, y_B_arr.view(1, -1).cuda())
 
             z_A_arr = z_A_arr.squeeze(0)
