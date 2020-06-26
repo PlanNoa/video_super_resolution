@@ -28,7 +28,7 @@ class VSR(torch.nn.Module):
             depth_map = torch.stack([self.FlowModule(data[0].clone(), data[1].clone()),
                                      self.FlowModule(data[1].clone(), data[2].clone())])
             # depth_map = [self.DepthModule(data[0].clone(), data[1].clone()),
-                        #  self.DepthModule(data[1].clone(), data[2].clone())]
+                        # self.DepthModule(data[1].clone(), data[2].clone())]
             data = data.transpose(1, 3).transpose(2, 3)
             optical_flow = interpolate(optical_flow.transpose(1, 3).transpose(2, 3), data.shape[2:])
             depth_map = interpolate(depth_map.transpose(1, 3).transpose(2, 3), data.shape[2:])
