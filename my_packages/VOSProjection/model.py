@@ -2,9 +2,6 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.nn.init as init
-from torch.utils import data
-import torch.utils.model_zoo as model_zoo
 from utils.models import resnet50
 
 class Encoder(nn.Module):
