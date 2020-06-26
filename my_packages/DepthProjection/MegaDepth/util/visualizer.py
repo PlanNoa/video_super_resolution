@@ -5,6 +5,7 @@ import time
 from . import util
 from . import html
 
+
 class Visualizer():
     def __init__(self, opt):
         # self.opt = opt
@@ -22,18 +23,17 @@ class Visualizer():
             print('create web directory %s...' % self.web_dir)
             util.mkdirs([self.web_dir, self.img_dir])
 
-
     # |visuals|: dictionary of images to display or save
     def display_current_results(self, visuals, epoch):
-        if self.display_id > 0: # show images in the browser
+        if self.display_id > 0:  # show images in the browser
             idx = 1
             for label, image_numpy in visuals.items():
-                #image_numpy = np.flipud(image_numpy)
-                self.vis.image(image_numpy.transpose([2,0,1]), opts=dict(title=label),
-                                   win=self.display_id + idx)
+                # image_numpy = np.flipud(image_numpy)
+                self.vis.image(image_numpy.transpose([2, 0, 1]), opts=dict(title=label),
+                               win=self.display_id + idx)
                 idx += 1
 
-        if self.use_html: # save images to a html file
+        if self.use_html:  # save images to a html file
             for label, image_numpy in visuals.items():
                 img_path = os.path.join(self.img_dir, 'epoch%.3d_%s.png' % (epoch, label))
                 util.save_image(image_numpy, img_path)
@@ -56,11 +56,11 @@ class Visualizer():
     # errors: dictionary of error labels and values
     def plot_current_errors(self, epoch, counter_ratio, opt, errors):
         if not hasattr(self, 'plot_data'):
-            self.plot_data = {'X':[],'Y':[], 'legend':list(errors.keys())}
+            self.plot_data = {'X': [], 'Y': [], 'legend': list(errors.keys())}
         self.plot_data['X'].append(epoch + counter_ratio)
         self.plot_data['Y'].append([errors[k] for k in self.plot_data['legend']])
         self.vis.line(
-            X=np.stack([np.array(self.plot_data['X'])]*len(self.plot_data['legend']),1),
+            X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
             Y=np.array(self.plot_data['Y']),
             opts={
                 'title': self.name + ' loss over time',

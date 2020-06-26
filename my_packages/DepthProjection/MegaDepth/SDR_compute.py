@@ -3,6 +3,7 @@ import torch
 import sys
 
 from options.train_options import TrainOptions
+
 opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 from data.data_loader import CreateDataLoader_TEST
 from models.models import create_model
@@ -27,19 +28,19 @@ print('========================= test P images = %d' % test_dataset_size_p)
 model = create_model(opt)
 
 batch_size = 32
-diw_index = 0 
+diw_index = 0
 total_steps = 0
 best_loss = 100
 
-error_list = [0 , 0, 0]
-total_list = [0 , 0, 0]
+error_list = [0, 0, 0]
+total_list = [0, 0, 0]
 
 list_l = range(test_dataset_size_l)
 list_p = range(test_dataset_size_p)
 
 
 def test_SDR(model):
-    total_loss =0 
+    total_loss = 0
     # count = 0
     print("============================= TEST SDR============================")
     model.switch_to_eval()
@@ -47,36 +48,35 @@ def test_SDR(model):
 
     for i, data in enumerate(test_dataset_l):
         stacked_img = data['img_1']
-        targets = data['target_1']    
+        targets = data['target_1']
         error, samples = model.evaluate_SDR(stacked_img, targets)
 
-        for j in range(0,3):
+        for j in range(0, 3):
             error_list[j] += error[j]
             total_list[j] += samples[j]
 
-        print("EQUAL  ", error_list[0]/float(total_list[0]))
-        print("INEQUAL    ", error_list[1]/float(total_list[1]))
-        print("TOTAL    ",error_list[2]/float(total_list[2]))
+        print("EQUAL  ", error_list[0] / float(total_list[0]))
+        print("INEQUAL    ", error_list[1] / float(total_list[1]))
+        print("TOTAL    ", error_list[2] / float(total_list[2]))
 
     for i, data in enumerate(test_dataset_p):
         stacked_img = data['img_1']
-        targets = data['target_1']    
+        targets = data['target_1']
 
         error, samples = model.evaluate_SDR(stacked_img, targets)
 
-        for j in range(0,3):
+        for j in range(0, 3):
             error_list[j] += error[j]
             total_list[j] += samples[j]
 
-        print("EQUAL  ", error_list[0]/float(total_list[0]))
-        print("INEQUAL    ", error_list[1]/float(total_list[1]))
-        print("TOTAL    ",error_list[2]/float(total_list[2]))
-
+        print("EQUAL  ", error_list[0] / float(total_list[0]))
+        print("INEQUAL    ", error_list[1] / float(total_list[1]))
+        print("TOTAL    ", error_list[2] / float(total_list[2]))
 
     print("=========================================================SDR Summary =====================")
-    print("Equal SDR:\t" , float(error_list[0])/ float(total_list[0]))
-    print("Unequal SDR:\t" , float(error_list[1])/ float(total_list[1]))
-    print("SDR:\t" , float(error_list[2])/ float(total_list[2]))
+    print("Equal SDR:\t", float(error_list[0]) / float(total_list[0]))
+    print("Unequal SDR:\t", float(error_list[1]) / float(total_list[1]))
+    print("SDR:\t", float(error_list[2]) / float(total_list[2]))
 
 
 print("WE ARE TESTING SDR!!!!")

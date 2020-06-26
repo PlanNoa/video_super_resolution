@@ -3,6 +3,7 @@ import torch
 import sys
 
 from options.train_options import TrainOptions
+
 opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 from data.data_loader import CreateDataLoader
 from models.models import create_model
@@ -26,42 +27,40 @@ test_dataset_p = test_data_loader_p.load_data()
 test_dataset_size_p = len(test_data_loader_p)
 print('========================= test images = %d' % test_dataset_size_p)
 
-
 model = create_model(opt)
 
 
 def test(model):
-    total_loss =0 
+    total_loss = 0
     toal_count = 0
     print("============================= TEST ============================")
     model.switch_to_eval()
     for i, data in enumerate(test_dataset_l):
         stacked_img = data['img_1']
-        targets = data['target_1']    
+        targets = data['target_1']
 
-        rmse_loss , count = model.evaluate_sc_inv(stacked_img, targets)
+        rmse_loss, count = model.evaluate_sc_inv(stacked_img, targets)
 
         total_loss += rmse_loss
         toal_count += count
 
-        print('RMSE loss is', total_loss/float(toal_count))
+        print('RMSE loss is', total_loss / float(toal_count))
 
     for i, data in enumerate(test_dataset_p):
         stacked_img = data['img_1']
-        targets = data['target_1']    
-        rmse_loss , count = model.evaluate_sc_inv(stacked_img, targets)
+        targets = data['target_1']
+        rmse_loss, count = model.evaluate_sc_inv(stacked_img, targets)
 
         total_loss += rmse_loss
         toal_count += count
 
-        print('RMSE loss is', total_loss/float(toal_count))
+        print('RMSE loss is', total_loss / float(toal_count))
 
+    print('average RMSE loss is', total_loss / float(toal_count))
 
-    print('average RMSE loss is', total_loss/float(toal_count))
 
 print("WE ARE IN TESTING RMSE!!!!")
 test(model)
 print("WE ARE DONE TESTING!!!")
-
 
 print("We are done")
