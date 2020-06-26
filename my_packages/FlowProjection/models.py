@@ -6,17 +6,15 @@ import numpy as np
 try:
     from networks.resample2d_package.resample2d import Resample2d
     from networks.channelnorm_package.channelnorm import ChannelNorm
-
     from networks import FlowNetC
     from networks import FlowNetS
     from networks import FlowNetSD
     from networks import FlowNetFusion
-
     from networks.submodules import *
+
 except:
     from .networks.resample2d_package.resample2d import Resample2d
     from .networks.channelnorm_package.channelnorm import ChannelNorm
-
     from .networks import FlowNetC
     from .networks import FlowNetS
     from .networks import FlowNetSD
