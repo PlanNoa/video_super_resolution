@@ -10,7 +10,7 @@ from PIL import Image
 class VOSProjectionModule(Module):
     def __init__(self):
         super(VOSProjectionModule, self).__init__()
-        self.model = RGMP().cuda()
+        self.model = RGMP()
         self.dict = torch.load('my_packages/VOSProjection/pretrained/weights.pth')
         self.model.load_state_dict({k[7:] if k[:7] == 'module.' else k:self.dict[k] for k in self.dict})
         self.model.eval()
