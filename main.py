@@ -53,6 +53,8 @@ def ArgmentsParser():
 
         args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+    return args
+
 def InitalizingTrainingAndTestDataset(args):
 
     def InitalizingTrainingDataset(block):
@@ -83,7 +85,7 @@ def InitalizingTrainingAndTestDataset(args):
 
 def BuildMainModelAndOptimizer(args):
 
-    def BuildMainModel(block):
+    def BuildMainModel(args, block):
         block.log('Building Model')
         SRmodel = VSR()
         if args.cuda and args.number_gpus > 1:
@@ -121,14 +123,7 @@ def BuildMainModelAndOptimizer(args):
         if not os.path.exists(args.save):
             os.makedirs(args.save)
 
-    with tools.TimerBlock("Building {} model".format(args.model_name)) as block:
-        SRmodel = BuildMainModel(block, args)
-        torch.cuda.manual_seed(args.seed)
-        checkpoint = InitializingCheckpoint(args)
-        SRmodel = LoadModelFromCheckpoint(SRmodel, checkpoint, args, block)
-        InitializingSaveDirectory(args, block)
-
-    def BuildOptimizer(checkpoint, block, args):
+    def BuildOptimizer(checkpoint, args, block):
         if checkpoint:
             optimizer = checkpoint['optimizer']
             block.log("Loaded checkpoint '{}'".format(args.resume))
@@ -136,6 +131,13 @@ def BuildMainModelAndOptimizer(args):
             optimizer = torch.optim.Adam(SRmodel.parameters())
             block.log("Random initialization")
         return optimizer
+
+    with tools.TimerBlock("Building {} model".format(args.model_name)) as block:
+        SRmodel = BuildMainModel(args, block)
+        torch.cuda.manual_seed(args.seed)
+        checkpoint = InitializingCheckpoint(args)
+        SRmodel = LoadModelFromCheckpoint(SRmodel, checkpoint, args, block)
+        InitializingSaveDirectory(args, block)
 
     with tools.TimerBlock("Initializing Optimizer") as block:
         optimizer = BuildOptimizer(checkpoint, args, block)
@@ -225,7 +227,7 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                                    'state_dict': SRmodel.model.state_dict(),
                                    'best_EPE': best_err,
                                    'optimizer': optimizer},
-                                  args.save, args.model_name)
+                                  False, args.save, args.model_name)
             checkpoint_progress.update(1)
             checkpoint_progress.close()
             offset += 1
@@ -242,7 +244,7 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
                                        'best_EPE': train_loss},
-                                      args.save, args.model_name, filename='train-checkpoint.pth.tar')
+                                      False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 
