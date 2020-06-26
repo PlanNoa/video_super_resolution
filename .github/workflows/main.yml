@@ -28,10 +28,10 @@ jobs:
  
     - name: Install dependencies
       run: |
-        pip install flake8
         python -m pip install --upgrade pip
 
-    - name: Lint with flake8
-      run: |
-        flake8 --max-line-length=120 bild/*.py
-        flake8 .
+    linters:
+      pep8:
+        python: 3
+        max-line-length: 120
+        fixer: true
