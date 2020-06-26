@@ -17,7 +17,6 @@ if __name__ == '__main__':
     warnings.filterwarnings("ignore")
     parser = argparse.ArgumentParser()
 
-
     parser.add_argument('--start_epoch', type=int, default=1)
     parser.add_argument('--total_epochs', type=int, default=10000)
     parser.add_argument('--batch_size', type=int, default=128)
