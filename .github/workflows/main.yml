@@ -30,8 +30,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
 
-    linters:
-      pep8:
-        python: 3
-        max-line-length: 120
-        fixer: true
+    - name: Lint with flake8
+      run: |
+        env/bin/pep8 --max-line-length=120
+        flake8 .
