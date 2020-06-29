@@ -9,10 +9,10 @@ opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 class DepthProjectionModule():
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
-        #channel = 3
-        #filter_size = 4
-        #timestep = 0.5
-        #i = 0
+        # channel = 3
+        # filter_size = 4
+        # timestep = 0.5
+        # i = 0
         self.model = create_model(opt)
         self.model.switch_to_eval()
 
@@ -53,12 +53,12 @@ class DepthProjectionModule():
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
 
-        #depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
+        # depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
 
         print(temp.size())
         print(cur_filter_output[0].size())
         cur_filter_output = torch.squeeze(cur_filter_output[0])
-        #import matplotlib.image as mpimg
+        # import matplotlib.image as mpimg
         from matplotlib.pyplot import imshow
         cur_filter_output = cur_filter_output.detach().numpy()
         imshow(cur_filter_output)

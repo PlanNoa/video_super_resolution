@@ -1,6 +1,8 @@
+import os
 import warnings
-import colorama, os
-import argparse, torch
+import colorama
+import argparse
+import torch
 import numpy as np
 import torch.nn as nn
 from tqdm import tqdm
@@ -8,7 +10,6 @@ from torch.utils.data import DataLoader
 from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
-from utils.tools import down_scailing, torch2numpy
 from utils import tools
 from utils.frame_utils import *
 from utils.video_utils import *

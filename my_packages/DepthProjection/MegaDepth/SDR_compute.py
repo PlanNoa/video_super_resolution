@@ -1,8 +1,8 @@
 from options.train_options import TrainOptions
-
-opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 from data.data_loader import CreateDataLoader_TEST
 from models.models import create_model
+
+opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 
 dataset_root = "/phoenix/S6/zl548/"
 test_list_dir_l = dataset_root + '/MegaDpeth_code/test_list/landscape/'
@@ -36,11 +36,9 @@ list_p = range(test_dataset_size_p)
 
 
 def test_SDR(model):
-    total_loss = 0
     # count = 0
     print("============================= TEST SDR============================")
     model.switch_to_eval()
-    diw_index = 0
 
     for i, data in enumerate(test_dataset_l):
         stacked_img = data['img_1']

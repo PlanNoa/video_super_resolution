@@ -1,7 +1,7 @@
-import torch.nn as nn
 import math
-
 import torch
+import torch.nn as nn
+from torch.autograd import Variable
 
 # __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
 # 'resnet152','resnet18_conv1']
@@ -226,8 +226,6 @@ def S2DF_2dense():
     model = S2DF(BasicBlock, 2, dense=True)
     return model
 
-
-from torch.autograd import Variable
 
 if __name__ == '__main__':
     x = Variable(torch.randn(2, 3, 224, 448))

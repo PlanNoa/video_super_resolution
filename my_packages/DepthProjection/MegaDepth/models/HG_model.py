@@ -54,7 +54,7 @@ class HGModel(BaseModel):
         diff = estimated_labels - ground_truth
         diff[diff != 0] = 1
 
-        # error 
+        # error
         inequal_error_count = diff[ground_truth != 0]
         inequal_error_count = torch.sum(inequal_error_count)
 
@@ -76,13 +76,13 @@ class HGModel(BaseModel):
         return error_list, count_list
 
     def computeSDR(self, prediction_d, targets):
-        #  for each image 
+        #  for each image
         total_error = [0, 0, 0]
         total_samples = [0, 0, 0]
 
         for i in range(0, prediction_d.size(0)):
 
-            if targets['has_SfM_feature'][i] == False:
+            if not targets['has_SfM_feature'][i]:
                 continue
 
             x_A_arr = targets["sdr_xA"][i].squeeze(0)

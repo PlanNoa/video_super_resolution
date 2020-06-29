@@ -1,13 +1,12 @@
 import torch
 import numpy as np
-from PIL import Image
 from torch.nn.functional import interpolate
 from loss_function import _SR_loss, _Flow_loss, _loss4object
 from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
 from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
 from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
-from utils.tools import up_scailing, down_scailing, get_gpu_usage, maskprocess
+from utils.tools import maskprocess
 
 
 class VSR(torch.nn.Module):
