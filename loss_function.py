@@ -69,7 +69,7 @@ class _loss4object(nn.Module):
         self.masks = None
 
     def forward(self, outputs, target=None, SR=False):
-        if type(self.masks) == type(None):
+        if isinstance(self.masks, type(None)):
             obj_segmentation = self.VOS(outputs[0], outputs[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
             self.masks = np.array([[maskprocess(obj_segmentation == i)] for i in range(num_objects)])

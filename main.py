@@ -204,7 +204,6 @@ if __name__ == '__main__':
     progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100,
                     desc='Overall Progress', leave=True, position=True)
 
-
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
             validation_loss, _ = train(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel,

@@ -1,8 +1,8 @@
 from options.train_options import TrainOptions
-
-opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 from data.data_loader import CreateDataLoader
 from models.models import create_model
+
+opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 
 dataset_root = "/phoenix/S6/zl548/"
 test_list_dir_l = '/phoenix/S6/zl548/MegaDpeth_code/test_list/landscape/'

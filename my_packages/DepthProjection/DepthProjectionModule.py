@@ -39,7 +39,7 @@ class DepthProjectionModule():
         print(cur_filter_input[:, :3, ...].size(), cur_filter_input[:, 3:, ...].size())
         temp = self.depthNet(torch.cat((cur_filter_input[:, :3, ...],
                                         cur_filter_input[:, 3:, ...]), dim=0))
-        log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
+        # log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
 
         """
         cur_ctx_output = [

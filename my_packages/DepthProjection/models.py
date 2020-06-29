@@ -1,17 +1,14 @@
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.autograd as autograd
 import os
-from my_packages.DepthProjection import base_model
-from my_packages.DepthProjection import networks
+import os.path
 import sys
 import h5py
-import os.path
+import torch
+import numpy as np
+import torch.autograd as autograd
+import torchvision.utils as vutils
+from my_packages.DepthProjection import base_model
 from skimage.io import imsave
 from my_packages.DepthProjection import hourglass
-
-import torchvision.utils as vutils
 
 
 class Pix2PixModel(base_model.BaseModel):
@@ -122,8 +119,7 @@ class Pix2PixModel(base_model.BaseModel):
         invere_depth_pred = torch.exp(-prediction_d.data.cpu()).unsqueeze(1).repeat(
             1, 3, 1, 1)
 
-        invere_depth_gt = 1.0 / \
-                          targets['depth_gt'].unsqueeze(1).repeat(1, 3, 1, 1)
+        invere_depth_gt = 1.0 / targets['depth_gt'].unsqueeze(1).repeat(1, 3, 1, 1)
         gt_mask = targets['gt_mask'].unsqueeze(1).repeat(1, 3, 1, 1)
 
         invere_depth_gt = invere_depth_gt * gt_mask
@@ -286,8 +282,7 @@ class Pix2PixModel(base_model.BaseModel):
             saved_img = np.transpose(
                 input_imgs[i, :, :, :].cpu().numpy(), (1, 2, 0))
 
-            output_path = youtube_dir + '/' + \
-                          targets['img_1_path'][i].split('/')[-1]
+            output_path = youtube_dir + '/' + targets['img_1_path'][i].split('/')[-1]
 
             print('output_path', output_path)
             input_confidence = targets['input_confidence'][i]
@@ -408,8 +403,7 @@ class Pix2PixModel(base_model.BaseModel):
                 os.makedirs(youtube_dir)
 
             pred_d_ref = prediction_d.data[i, :, :].cpu().numpy()
-            saved_img = np.transpose(
-                input_imgs[i, :, :, :].cpu().numpy(), (1, 2, 0))
+            saved_img = np.transpose(input_imgs[i, :, :, :].cpu().numpy(), (1, 2, 0))
             human_mask_ref = human_mask.data[i, 0, :, :].cpu().numpy()
 
             output_path = youtube_dir + '/' + \
@@ -511,8 +505,7 @@ class Pix2PixModel(base_model.BaseModel):
             ).numpy()
             full_flow_ref = full_flow[i, :, :, :].data.cpu().numpy()
 
-            output_path = youtube_dir + '/' + \
-                          targets['img_1_path'][i].split('/')[-1]
+            output_path = youtube_dir + '/' + targets['img_1_path'][i].split('/')[-1]
 
             K = targets['K'][i]
             T_1_G = targets['T_1_G'][i]
@@ -567,8 +560,7 @@ class Pix2PixModel(base_model.BaseModel):
 
             pred_d_ref = pred_d.data[i, :, :].cpu().numpy()
 
-            output_path = youtube_dir + '/' + \
-                          targets['img_1_path'][i].split('/')[-1]
+            output_path = youtube_dir + '/' + targets['img_1_path'][i].split('/')[-1]
             print(output_path)
             disparity = 1. / pred_d_ref
             disparity = disparity / np.max(disparity)
