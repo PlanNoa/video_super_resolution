@@ -97,7 +97,7 @@ class HGModel(BaseModel):
             # print(x_A_arr.size())
             # print(y_A_arr.size())
 
-            z_A_arr = torch.gather(torch.index_select(predict_depth, 1, x_A_arr.cuda()), 0, y_A_arr.view(1,-1).cuda())
+            z_A_arr = torch.gather(torch.index_select(predict_depth, 1, x_A_arr.cuda()), 0, y_A_arr.view(1, -1).cuda())
             # predict_depth:index(2, x_A_arr):gather(1, y_A_arr:view(1, -1))
             z_B_arr = torch.gather(torch.index_select(predict_depth, 1, x_B_arr.cuda()), 0, y_B_arr.view(1, -1).cuda())
 

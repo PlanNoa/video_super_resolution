@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-from my_packages.DepthProjection import S2D_models
-from my_packages.DepthProjection import MegaDepth
 from my_packages.DepthProjection.MegaDepth.models.models import create_model
 from my_packages.DepthProjection.MegaDepth.options.train_options import TrainOptions
 
@@ -11,10 +9,10 @@ opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 class DepthProjectionModule():
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
-        channel = 3
-        filter_size = 4
-        timestep = 0.5
-        i = 0
+        #channel = 3
+        #filter_size = 4
+        #timestep = 0.5
+        #i = 0
         self.model = create_model(opt)
         self.model.switch_to_eval()
 
@@ -43,22 +41,24 @@ class DepthProjectionModule():
                                         cur_filter_input[:, 3:, ...]), dim=0))
         log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
 
+        """
         cur_ctx_output = [
             torch.cat((self.ctxNet(cur_filter_input[:, :3, ...]),
                        log_depth[0].detach()), dim=1),
             torch.cat((self.ctxNet(cur_filter_input[:, 3:, ...]),
                        log_depth[1].detach()), dim=1)
         ]
+        """
         temp = self.forward_singlePath(self.initScaleNets_filter, cur_filter_input, 'filter')
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
 
-        depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
+        #depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
 
         print(temp.size())
         print(cur_filter_output[0].size())
         cur_filter_output = torch.squeeze(cur_filter_output[0])
-        import matplotlib.image as mpimg
+        #import matplotlib.image as mpimg
         from matplotlib.pyplot import imshow
         cur_filter_output = cur_filter_output.detach().numpy()
         imshow(cur_filter_output)
@@ -67,9 +67,11 @@ class DepthProjectionModule():
 
         '''
         Generally, the MonoNet is aimed to provide a basic module for generating either offset, or filter, or occlusion.
-        :param channel_in: number of channels that composed of multiple useful information like reference frame, previous coarser-scale result
+        :param channel_in: number of channels that composed of multiple useful information like reference frame,
+        previous coarser-scale result
         :param channel_out: number of output the offset or filter or occlusion
-        :param name: to distinguish between offset, filter and occlusion, since they should use different activations in the last network layer
+        :param name: to distinguish between offset, filter and occlusion,
+        since they should use different activations in the last network layer
         :return: output the network model
         '''
         model = []

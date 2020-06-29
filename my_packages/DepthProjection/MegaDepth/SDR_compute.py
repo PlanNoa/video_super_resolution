@@ -1,7 +1,3 @@
-import time
-import torch
-import sys
-
 from options.train_options import TrainOptions
 
 opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
