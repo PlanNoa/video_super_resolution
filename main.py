@@ -146,6 +146,21 @@ def BuildMainModelAndOptimizer(args):
 
 def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
 
+    def MakeDataDatasetToCuda(datas):
+        data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
+                                            (int(d.shape[1] / 4),int(d.shape[2] / 4))).transpose(1, 3).transpose(1, 2)
+                                             for d in dd])
+                                for dd in datas]).squeeze()
+        return data
+
+    def MakeTargetDatasetToCuda(datas):
+        target = torch.stack([d[1] for d in datas]).type(torch.float32)
+        return target
+
+    def MakeHFDatasetToCuda(datas):
+        high_frames = torch.stack([torch.stack(d) for d in datas]).squeeze().type(torch.float32)
+        return high_frames
+
     def TrainMainModel(args, epoch, data_loader, model, optimizer, is_validate=False, offset=0):
         total_loss = 0
         fakeloss = MSELoss()
@@ -166,12 +181,10 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                             leave=True, position=offset, desc=title)
 
         for batch_idx, datas in enumerate(progress):
-            data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
-                                            (int(d.shape[1] / 4),int(d.shape[2] / 4))).transpose(1, 3).transpose(1, 2)
-                                             for d in dd])
-                                for dd in datas]).squeeze()
-            target = torch.stack([d[1] for d in datas]).type(torch.float32)
-            high_frames = torch.stack([torch.stack(d) for d in datas]).squeeze().type(torch.float32)
+            data = MakeDataDatasetToCuda(datas)
+            target = MakeTargetDatasetToCuda(datas)
+            high_frames = MakeHFDatasetToCuda(datas)
+
             if args.cuda and args.number_gpus > 0:
                 data = data.cuda()
                 target = target.cuda()
