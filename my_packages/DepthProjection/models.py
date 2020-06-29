@@ -405,8 +405,7 @@ class Pix2PixModel(base_model.BaseModel):
             saved_img = np.transpose(input_imgs[i, :, :, :].cpu().numpy(), (1, 2, 0))
             human_mask_ref = human_mask.data[i, 0, :, :].cpu().numpy()
 
-            output_path = youtube_dir + '/' + \
-                          targets['img_1_path'][i].split('/')[-1]
+            output_path = youtube_dir + '/' + targets['img_1_path'][i].split('/')[-1]
             gt_depth_ref = targets['depth_gt'][i]
             gt_mask_ref = targets['gt_mask'][i]
             input_confidence_ref = targets['input_confidence'][i]

@@ -1,5 +1,5 @@
 import numpy as np
-from os.path import *
+from os.path import splitext
 from scipy.misc import imread
 from flow_utils import readFlow
 
