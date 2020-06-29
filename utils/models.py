@@ -1,9 +1,7 @@
-import torch
 import torch.nn as nn
 import errno
 import hashlib
 import os
-import re
 import shutil
 import sys
 import tempfile

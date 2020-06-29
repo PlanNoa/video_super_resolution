@@ -1,10 +1,10 @@
 from torch.nn.modules.module import Module
-from .utils import *
+from utils.tools import ToLabel
 from .inference import *
 from .model import RGMP
 import numpy as np
 import torch
-from utils.object_utils import *
+from utils.object_utils import count_objects
 from PIL import Image
 
 class VOSProjectionModule(Module):

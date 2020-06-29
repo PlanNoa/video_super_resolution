@@ -3,7 +3,7 @@ import torch
 from torch.autograd import Variable
 
 import torch.nn.functional as F
-from .utils import ToCudaVariable, upsample, downsample
+from utils.object_utils import ToCudaVariable, upsample, downsample
 
 def Encode_MS(val_F1, val_P1, scales, model):
     ref = {}

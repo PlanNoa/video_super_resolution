@@ -1,5 +1,4 @@
 from network.video_super_resolution import VSR
-from utils.frame_utils import *
 from utils.video_utils import *
 from utils import tools
 import argparse, torch
@@ -58,7 +57,7 @@ def ArgmentsParser():
 def InitalizingTrainingAndTestDataset(args):
 
     def InitalizingTrainingDataset(block):
-        if exists(args.training_dataset_root):
+        if os.path.exists(args.training_dataset_root):
             effective_batch_size = args.batch_size * args.number_gpus
             train_dataset = VideoDataset(args.training_dataset_root)
             block.log('Training Dataset: {}'.format(args.training_dataset_root))
@@ -68,7 +67,7 @@ def InitalizingTrainingAndTestDataset(args):
             return train_loader
 
     def InitalizingValidationDataset(block):
-        if exists(args.validation_dataset_root):
+        if os.path.exists(args.validation_dataset_root):
             effective_batch_size = args.batch_size * args.number_gpus
             validation_dataset = VideoDataset(args.validation_dataset_root)
             block.log('Validataion Dataset: {}'.format(args.validation_dataset_root))

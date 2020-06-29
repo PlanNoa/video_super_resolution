@@ -1,9 +1,7 @@
-# read video and return as frame by frame
 import cv2
 from torch.utils.data import Dataset
 from glob import glob
 import os
-import numpy as np
 
 class VideoDataset(Dataset):
     def __init__(self, path):
