@@ -1,7 +1,3 @@
-import torch
-import sys
-from torch.autograd import Variable
-import numpy as np
 from .options.train_options import TrainOptions
 from .models.models import create_model
 
