@@ -1,11 +1,12 @@
 import torch
 import numpy as np
 from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
-from loss_function import _SR_loss, _Flow_loss, _loss4object
+from loss_function import SR_loss, Flow_loss, GetObjectsForOBJLoss
 from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
 from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
 from utils.tools import maskprocess
+from PIL import Image
 from torch.nn.functional import interpolate
 
 class VSR(torch.nn.Module):
@@ -15,9 +16,9 @@ class VSR(torch.nn.Module):
         self.FlowModule = FlowProjectionModule().eval()
         self.DepthModule = DepthProjectionModule().eval()
         self.VOSModule = VOSProjectionModule().eval()
-        self.SR_loss = _SR_loss().eval()
-        self.Flow_loss = _Flow_loss().eval()
-        self.loss4object = _loss4object().eval()
+        self.SR_loss = SR_loss().eval()
+        self.Flow_loss = Flow_loss().eval()
+        self.loss4object = GetObjectsForOBJLoss().eval()
 
     def forward(self, data, target, high_frames, estimated_image, train=True):
         with torch.no_grad():
@@ -68,6 +69,6 @@ class VSR(torch.nn.Module):
     def loss_calculate(self, target, outputs):
         genSR_loss = self.SR_loss(outputs[0:1], target)
         objSR_loss = torch.mean(torch.tensor([self.SR_loss(i, j) for i, j in self.loss4object(outputs[:2], target, SR=True)]))
-        Flow_loss = self.Flow_loss(outputs)
+        genFlow_loss = self.Flow_loss(outputs)
         objFlow_loss = torch.mean(torch.tensor([self.Flow_loss(output) for output in self.loss4object(outputs)]))
-        return torch.tensor([genSR_loss, objSR_loss, Flow_loss, objFlow_loss])
+        return torch.tensor([genSR_loss, objSR_loss, genFlow_loss, objFlow_loss])
