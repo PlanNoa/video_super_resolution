@@ -36,8 +36,7 @@ class Pix2PixModel(base_model.BaseModel):
 
         new_model.load_state_dict(model_parameters)
 
-        new_model = torch.nn.parallel.DataParallel(
-            new_model.cuda(), device_ids=range(torch.cuda.device_count()))
+        new_model = torch.nn.parallel.DataParallel(new_model.cuda(), device_ids=range(torch.cuda.device_count()))
 
         self.netG = new_model
 
