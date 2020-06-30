@@ -94,4 +94,5 @@ def getFlowMaskedOutputs(outputs, masks):
             masked_output = torch.tensor(np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled())
             masked_outputs.append(masked_output)
         masked_outputs = torch.stack(masked_outputs).type(torch.float32).cuda()
+        masked_objects.append(masked_outputs)
     return masked_objects
