@@ -11,8 +11,8 @@ from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
 from utils import tools
-from utils.frame_utils import *
-from utils.video_utils import *
+from utils.frame_utils import
+from utils.video_utils import VideoDataset
 
 
 def train(args, epoch, data_loader, model, optimizer, is_train=True, offset=0):
@@ -150,14 +150,14 @@ if __name__ == '__main__':
     with tools.TimerBlock("Initializing Datasets") as block:
         args.effective_batch_size = args.batch_size * args.number_gpus
 
-        if exists(args.training_dataset_root):
+        if pos.path.exists(args.training_dataset_root):
             train_dataset = VideoDataset(args.training_dataset_root)
             block.log('Training Dataset: {}'.format(args.training_dataset_root))
             block.log('Training Input: {}'.format(np.array(train_dataset[0][0]).shape))
             block.log('Training Targets: {}'.format(train_dataset[0][0][1].shape))
             train_loader = DataLoader(train_dataset, batch_size=args.effective_batch_size, shuffle=True)
 
-        if exists(args.validation_dataset_root):
+        if os.path.exists(args.validation_dataset_root):
             validation_dataset = VideoDataset(args.validation_dataset_root)
             block.log('Validataion Dataset: {}'.format(args.validation_dataset_root))
             block.log('Validataion Input: {}'.format(np.array(validation_dataset[0][0]).shape))
