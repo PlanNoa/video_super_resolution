@@ -1,7 +1,8 @@
-import cv2
-from torch.utils.data import Dataset
-from glob import glob
 import os
+import cv2
+from glob import glob
+from torch.utils.data import Dataset
+
 
 class VideoDataset(Dataset):
     def __init__(self, path):
@@ -18,7 +19,7 @@ class VideoDataset(Dataset):
             ret, img = cap.read(i)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             imgs.append(img)
-        data = [imgs[i:i+3] for i in range(len(imgs)-2)]
+        data = [imgs[i:i + 3] for i in range(len(imgs) - 2)]
         return data
 
     def __getitem__(self, idx):

@@ -1,12 +1,18 @@
-import time, os, shutil, torch
+import os
+import time
+import shutil
+import torch
 import numpy as np
+
 
 class StaticCenterCrop(object):
     def __init__(self, image_size, crop_size):
         self.th, self.tw = crop_size
         self.h, self.w = image_size
+
     def __call__(self, img):
-        return img[(self.h-self.th)//2:(self.h+self.th)//2, (self.w-self.tw)//2:(self.w+self.tw)//2,:]
+        return img[(self.h - self.th) // 2:(self.h + self.th) // 2, (self.w - self.tw) // 2:(self.w + self.tw) // 2, :]
+
 
 class TimerBlock:
     def __init__(self, title):
@@ -38,6 +44,7 @@ class TimerBlock:
         fid.write("%s\n" % (string))
         fid.close()
 
+
 class IteratorTimer():
     def __init__(self, iterable):
         self.iterable = iterable
@@ -57,6 +64,7 @@ class IteratorTimer():
 
     next = __next__
 
+
 def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar'):
     prefix_save = os.path.join(path, prefix)
     name = prefix_save + '_' + filename
@@ -64,8 +72,10 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
     if is_best:
         shutil.copyfile(name, prefix_save + '_model_best.pth.tar')
 
+
 def maskprocess(mask):
-    return np.logical_not(np.stack((mask,)*3, axis=-1))
+    return np.logical_not(np.stack((mask,) * 3, axis=-1))
+
 
 def ToLabel(E):
     fgs = np.argmax(E, axis=0).astype(np.float32)

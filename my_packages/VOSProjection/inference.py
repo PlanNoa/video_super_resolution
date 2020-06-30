@@ -1,9 +1,9 @@
 from __future__ import division
 import torch
-from torch.autograd import Variable
-
 import torch.nn.functional as F
+from torch.autograd import Variable
 from utils.object_utils import ToCudaVariable, upsample, downsample
+
 
 def Encode_MS(val_F1, val_P1, scales, model):
     ref = {}
@@ -17,6 +17,7 @@ def Encode_MS(val_F1, val_P1, scales, model):
             ref[sc] = model.Encoder(msv_F1, msv_P1)[0]
 
     return ref
+
 
 def Propagate_MS(ref, val_F2, val_P2, scales, model):
     h, w = val_F2.size()[2], val_F2.size()[3]
@@ -40,6 +41,7 @@ def Propagate_MS(ref, val_F2, val_P2, scales, model):
     val_E2 /= len(scales)
     return val_E2
 
+
 def Infer_SO(all_F, all_M, num_frames, model, scales):
     all_E = torch.zeros(all_M.size())
     all_E[:, :, 0] = all_M[:, :, 0]
@@ -49,6 +51,7 @@ def Infer_SO(all_F, all_M, num_frames, model, scales):
         all_E[:, 0, f + 1] = Propagate_MS(ref, all_F[:, :, f + 1], all_E[:, 0, f], scales)
 
     return all_E
+
 
 def Infer_MO(all_F, all_M, num_frames, num_objects, model, scales):
     if num_objects == 1:
@@ -66,7 +69,8 @@ def Infer_MO(all_F, all_M, num_frames, num_objects, model, scales):
         refs.append(Encode_MS(all_F[:, :, 0], all_E[:, o + 1, 0], scales, model))
 
     for f in range(0, num_frames - 1):
-        all_E[:, 0, f + 1] = 1 - Propagate_MS(ref_bg, all_F[:, :, f + 1], torch.sum(all_E[:, 1:, f], dim=1), scales, model)
+        all_E[:, 0, f + 1] = 1 - Propagate_MS(ref_bg, all_F[:, :, f + 1], torch.sum(all_E[:, 1:, f], dim=1), scales,
+                                              model)
         for o in range(num_objects):
             all_E[:, o + 1, f + 1] = Propagate_MS(refs[o], all_F[:, :, f + 1], all_E[:, o + 1, f], scales, model)
 

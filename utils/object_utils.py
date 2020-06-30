@@ -1,7 +1,7 @@
-import torch
-from torch.autograd import Variable
 import cv2
+import torch
 import numpy as np
+from torch.autograd import Variable
 
 def count_objects(optical_flow):
     # TODO-count moving objects from optical flow

@@ -1,16 +1,17 @@
-from network.video_super_resolution import VSR
-from utils.video_utils import *
-from utils import tools
-import argparse, torch
-import colorama, os
-import torch.nn as nn
+import os
+import colorama
+import argparse
+import torch
 import numpy as np
+import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.nn import MSELoss
 from torch.nn.functional import interpolate
-import warnings
-warnings.filterwarnings("ignore")
+from network.video_super_resolution import VSR
+from utils import tools
+from utils.video_utils import VideoDataset
+
 
 def ArgmentsParser():
     parser = argparse.ArgumentParser()
@@ -40,7 +41,8 @@ def ArgmentsParser():
 
     with tools.TimerBlock("Parsing Arguments") as block:
         args = parser.parse_args()
-        if args.number_gpus < 0: args.number_gpus = torch.cuda.device_count()
+        if args.number_gpus < 0:
+            args.number_gpus = torch.cuda.device_count()
 
         parser.add_argument('--IGNORE', action='store_true')
         defaults = vars(parser.parse_args(['--IGNORE']))
@@ -54,8 +56,8 @@ def ArgmentsParser():
 
     return args
 
-def InitalizingTrainingAndTestDataset(args):
 
+def InitalizingTrainingAndTestDataset(args):
     def InitalizingTrainingDataset(block):
         if os.path.exists(args.training_dataset_root):
             effective_batch_size = args.batch_size * args.number_gpus
@@ -82,8 +84,8 @@ def InitalizingTrainingAndTestDataset(args):
 
     return train_loader, validation_loader
 
-def BuildMainModelAndOptimizer(args):
 
+def BuildMainModelAndOptimizer(args):
     def BuildMainModel(args, block):
         block.log('Building Model')
         SRmodel = VSR()
@@ -143,13 +145,12 @@ def BuildMainModelAndOptimizer(args):
 
     return SRmodel, optimizer
 
-def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
 
+def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
     def MakeDataDatasetToCuda(datas):
         data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
-                                            (int(d.shape[1] / 4),int(d.shape[2] / 4))).transpose(1, 3).transpose(1, 2)
-                                             for d in dd])
-                                for dd in datas]).squeeze()
+                                                     (int(d.shape[1] / 4), int(d.shape[2] / 4))).transpose(1, 3).
+                                        transpose(1, 2) for d in dd]) for dd in datas]).squeeze()
         return data
 
     def MakeTargetDatasetToCuda(datas):
@@ -227,8 +228,8 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
 
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
-            validation_loss, _ = TrainMainModel(args=args, epoch=epoch - 1, data_loader=validation_loader, model=SRmodel,
-                                       optimizer=optimizer, is_validate=True, offset=offset)
+            validation_loss, _ = TrainMainModel(args=args, epoch=epoch - 1, data_loader=validation_loader,
+                                                model=SRmodel, optimizer=optimizer, is_validate=True, offset=offset)
             offset += 1
 
             best_err = SetBestErr(validation_loss, best_err)
@@ -246,7 +247,7 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
 
         if not args.skip_training:
             train_loss, iterations = TrainMainModel(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel,
-                                           optimizer=optimizer, offset=offset)
+                                                    optimizer=optimizer, offset=offset)
             global_iteration += iterations
             offset += 1
 
@@ -260,11 +261,13 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 
+
 def main():
     args = ArgmentsParser()
     train_loader, validation_loader = InitalizingTrainingAndTestDataset(args)
     SRmodel, optimizer = BuildMainModelAndOptimizer(args)
     TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args)
+
 
 if __name__ == '__main__':
     main()

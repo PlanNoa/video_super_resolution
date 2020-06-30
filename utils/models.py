@@ -1,20 +1,22 @@
-import torch.nn as nn
-import errno
-import hashlib
 import os
-import shutil
 import sys
-import tempfile
-import torch
-import warnings
+import errno
+import shutil
+import hashlib
 import zipfile
+import tempfile
+import warnings
+import torch
 from tqdm import tqdm
+import torch.nn as nn
+
 if sys.version_info[0] == 2:
     from urlparse import urlparse
     from urllib2 import urlopen  # noqa f811
 else:
     from urllib.request import urlopen
     from urllib.parse import urlparse  # noqa: F401
+
 
 class VGG(nn.Module):
 
@@ -54,6 +56,7 @@ class VGG(nn.Module):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
 
+
 def make_layers(cfg):
     layers = []
     in_channels = 3
@@ -66,25 +69,30 @@ def make_layers(cfg):
             in_channels = v
     return nn.Sequential(*layers)
 
+
 def _vgg():
     cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
     model = VGG(make_layers(cfg))
     state_dict = load_state_dict_from_url('https://download.pytorch.org/models/vgg16-397923af.pth',
-                                              progress=True)
+                                          progress=True)
     model.load_state_dict(state_dict)
     return model
 
+
 def vgg16():
     return _vgg()
+
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=dilation, groups=groups, bias=False, dilation=dilation)
 
+
 def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
+
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -125,8 +133,8 @@ class BasicBlock(nn.Module):
 
         return out
 
-class Bottleneck(nn.Module):
 
+class Bottleneck(nn.Module):
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
@@ -167,6 +175,7 @@ class Bottleneck(nn.Module):
         out = self.relu(out)
 
         return out
+
 
 class ResNet(nn.Module):
 
@@ -263,17 +272,19 @@ class ResNet(nn.Module):
     def forward(self, x):
         return self._forward_impl(x)
 
+
 def _resnet(block, layers):
     model = ResNet(block, layers)
     state_dict = load_state_dict_from_url("https://download.pytorch.org/models/resnet50-19c8e357.pth", progress=True)
     model.load_state_dict(state_dict)
     return model
 
+
 def resnet50():
     return _resnet(Bottleneck, [3, 4, 6, 3])
 
-def load_state_dict_from_url(url, model_dir=None, map_location=None, progress=True, check_hash=False):
 
+def load_state_dict_from_url(url, model_dir=None, map_location=None, progress=True, check_hash=False):
     if os.getenv('TORCH_MODEL_ZOO'):
         warnings.warn('TORCH_MODEL_ZOO is deprecated, please use env TORCH_HOME instead')
 
@@ -308,11 +319,13 @@ def load_state_dict_from_url(url, model_dir=None, map_location=None, progress=Tr
 
     return torch.load(cached_file, map_location=map_location)
 
+
 def _get_torch_home():
     torch_home = os.path.expanduser(
         os.getenv('TORCH_HOME',
                   os.path.join(os.getenv('XDG_CACHE_HOME', '~/.cache'), 'torch')))
     return torch_home
+
 
 def download_url_to_file(url, dst, hash_prefix=None, progress=True):
     file_size = None
@@ -354,4 +367,3 @@ def download_url_to_file(url, dst, hash_prefix=None, progress=True):
         f.close()
         if os.path.exists(f.name):
             os.remove(f.name)
-
