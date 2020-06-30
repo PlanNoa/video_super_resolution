@@ -2,7 +2,6 @@ import cv2
 import torch
 import numpy as np
 from torch.autograd import Variable
-from __future__ import division
 
 
 def ToLabel(E):
