@@ -149,7 +149,7 @@ if __name__ == '__main__':
     with tools.TimerBlock("Initializing Datasets") as block:
         args.effective_batch_size = args.batch_size * args.number_gpus
 
-        if pos.path.exists(args.training_dataset_root):
+        if os.path.exists(args.training_dataset_root):
             train_dataset = VideoDataset(args.training_dataset_root)
             block.log('Training Dataset: {}'.format(args.training_dataset_root))
             block.log('Training Input: {}'.format(np.array(train_dataset[0][0]).shape))
