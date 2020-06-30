@@ -1,5 +1,4 @@
 import os
-import warnings
 import colorama
 import argparse
 import torch
@@ -42,7 +41,8 @@ def ArgmentsParser():
 
     with tools.TimerBlock("Parsing Arguments") as block:
         args = parser.parse_args()
-        if args.number_gpus < 0: args.number_gpus = torch.cuda.device_count()
+        if args.number_gpus < 0:
+            args.number_gpus = torch.cuda.device_count()
 
         parser.add_argument('--IGNORE', action='store_true')
         defaults = vars(parser.parse_args(['--IGNORE']))

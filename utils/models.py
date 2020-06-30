@@ -5,6 +5,7 @@ import shutil
 import hashlib
 import zipfile
 import tempfile
+import warnings
 import torch
 from tqdm import tqdm
 import torch.nn as nn

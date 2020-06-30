@@ -33,7 +33,7 @@ class VSR(torch.nn.Module):
             optical_flow = interpolate(optical_flow.transpose(1, 3).transpose(2, 3), data_1.shape[2:])
             depth_map = interpolate(depth_map.transpose(1, 3).transpose(2, 3), data_1.shape[2:])
             estimated_image = interpolate(estimated_image.transpose(1, 3).transpose(2, 3), data_1.shape[2:]) \
-                if isinstance(estimated_image, type(None)) != type(None) else data_1[0:1]
+                if not isinstance(estimated_image, type(None)) else data_1[0:1]
             input = torch.cat((data_1, optical_flow, depth_map, estimated_image), 0)
             # input shape: [8, 3, y/4, x/4]
 
