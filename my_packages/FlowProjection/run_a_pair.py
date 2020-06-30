@@ -1,5 +1,6 @@
 import time
 import torch
+import numpy as np
 from utils.frame_utils import read_gen
 from utils.flow_utils import plt, flow2img
 from models import FlowNet2
