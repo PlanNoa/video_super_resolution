@@ -1,4 +1,4 @@
-from os.path import *
+from os.path import splitext
 import numpy as np
 from scipy.misc import imread
 from . import flow_utils

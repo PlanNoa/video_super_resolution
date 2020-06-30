@@ -306,7 +306,7 @@ def load_state_dict_from_url(url, model_dir=None, map_location=None, progress=Tr
     cached_file = os.path.join(model_dir, filename)
     if not os.path.exists(cached_file):
         sys.stderr.write('Downloading: "{}" to {}\n'.format(url, cached_file))
-        #hash_prefix = HASH_REGEX.search(filename).group(1) if check_hash else None
+        # hash_prefix = HASH_REGEX.search(filename).group(1) if check_hash else None
         download_url_to_file(url, cached_file, hash_prefix, progress=progress)
 
     if zipfile.is_zipfile(cached_file):

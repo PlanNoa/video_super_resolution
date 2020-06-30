@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import init
-
-from .submodules import *
+from .submodules import conv, deconv, predict_flow
 
 'Parameter count : 38,676,504 '
 

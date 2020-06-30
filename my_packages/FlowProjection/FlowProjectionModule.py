@@ -20,7 +20,7 @@ class FlowProjectionModule(Module):
         #     self.cropper = None
 
     def forward(self, input1, input2):
-        if self.cropper == None or self.image_size != input1.shape[:2] or \
+        if self.cropper is None or self.image_size != input1.shape[:2] or \
                 self.render_size != [((input1.shape[0]) // 64) * 64, ((input1.shape[1]) // 64) * 64]:
             self.image_size = input1.shape[:2]
             self.render_size = [((input1.shape[0]) // 64) * 64, ((input1.shape[1]) // 64) * 64]

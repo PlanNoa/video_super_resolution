@@ -29,7 +29,6 @@ def readFlow(fn):
 
 def writeFlow(filename, uv, v=None):
     """ Write optical flow to file.
-    
     If v is None, uv is assumed to contain both u and v channels,
     stacked in depth.
     Original code by Deqing Sun, adapted from Daniel Scharstein.
