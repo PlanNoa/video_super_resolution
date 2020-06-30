@@ -1,4 +1,3 @@
-# read video and return as frame by frame
 import os
 import cv2
 from glob import glob

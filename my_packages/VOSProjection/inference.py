@@ -2,7 +2,7 @@ from __future__ import division
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
-from .utils import ToCudaVariable, upsample, downsample
+from utils.object_utils import ToCudaVariable, upsample, downsample
 
 
 def Encode_MS(val_F1, val_P1, scales, model):

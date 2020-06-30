@@ -6,9 +6,9 @@ from utils.models import vgg16
 from utils.tools import maskprocess
 
 
-class _SR_loss(nn.Module):
+class SR_loss(nn.Module):
     def __init__(self):
-        super(_SR_loss, self).__init__()
+        super(SR_loss, self).__init__()
         vgg = vgg16()
         loss_network = nn.Sequential(*list(vgg.features)[:31]).eval()
         for param in loss_network.parameters():
@@ -48,41 +48,60 @@ class TVLoss(nn.Module):
         return t.size()[1] * t.size()[2] * t.size()[3]
 
 
-class _Flow_loss(nn.Module):
+class Flow_loss(nn.Module):
     def __init__(self):
-        super(_Flow_loss, self).__init__()
+        super(Flow_loss, self).__init__()
         self.mse_loss = nn.MSELoss()
-        self.SR_loss = _SR_loss()
+        self.SR_loss = SR_loss()
 
     def forward(self, outputs):
-        # need to test which one is better
+        # TODO-need to test which one is better
         flow_loss = torch.mean(
             torch.stack((self.SR_loss(outputs[0:1], outputs[1:2]), self.SR_loss(outputs[1:2], outputs[2:3]))))
         # flow_loss = torch.mean(self.mse_loss(outputs[0:1], outputs[1:2]), self.mse_loss(outputs[1:2], outputs[2:3])
         return 0.005 * flow_loss
 
 
-class _loss4object(nn.Module):
+class GetObjectsForOBJLoss(nn.Module):
     def __init__(self):
-        super(_loss4object, self).__init__()
+        super(GetObjectsForOBJLoss, self).__init__()
         self.VOS = VOSProjectionModule().eval().cpu()
         self.masks = None
 
     def forward(self, outputs, target=None, SR=False):
-        if isinstance(self.masks, type(None)):
+        if type(self.masks) == type(None):
             obj_segmentation = self.VOS(outputs[0], outputs[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
             self.masks = np.array([[maskprocess(obj_segmentation == i)] for i in range(num_objects)])
         if SR:
-            masked_outputs = [(torch.unsqueeze(
-                torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
-                             dtype=torch.float32), 0).cuda(),
-                               torch.tensor(np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask,
-                                                              fill_value=0).filled(), dtype=torch.float32).cuda()) for
-                              mask in self.masks]
+            masked_outputs = getSRMaskedOutputs(outputs, target, self.masks)
             return masked_outputs
         else:
-            masked_outputs = [torch.tensor(
-                [np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled() for output in
-                 outputs], dtype=torch.float32).cuda() for mask in self.masks]
+            masked_outputs = getFlowMaskedOutputs(outputs, self.masks)
             return masked_outputs
+
+
+def getSRMaskedOutputs(outputs, target, masks):
+    masked_objects = []
+    for mask in masks:
+        masked_output = torch.unsqueeze(
+            torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
+                         dtype=torch.float32), 0).cuda()
+        masked_target = torch.tensor(
+            np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
+            dtype=torch.float32).cuda()
+        masked_objects.append((masked_output, masked_target))
+
+    return masked_objects
+
+
+def getFlowMaskedOutputs(outputs, masks):
+    masked_objects = []
+    for mask in masks:
+        masked_outputs = []
+        for output in outputs:
+            masked_output = torch.tensor(
+                np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled())
+            masked_outputs.append(masked_output)
+        masked_outputs = torch.stack(masked_outputs).type(torch.float32).cuda()
+    return masked_objects

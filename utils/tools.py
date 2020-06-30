@@ -75,3 +75,8 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
 
 def maskprocess(mask):
     return np.logical_not(np.stack((mask,) * 3, axis=-1))
+
+
+def ToLabel(E):
+    fgs = np.argmax(E, axis=0).astype(np.float32)
+    return fgs.astype(np.uint8)
