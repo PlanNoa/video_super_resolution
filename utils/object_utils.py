@@ -48,5 +48,4 @@ def downsample(xs, scale):
             x = cv2.resize(x, dsize=dsize, interpolation=cv2.INTER_LINEAR)
 
         ys.append(torch.unsqueeze(torch.from_numpy(x), dim=0))
-
     return ys

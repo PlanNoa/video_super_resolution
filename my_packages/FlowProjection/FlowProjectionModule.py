@@ -9,15 +9,11 @@ class FlowProjectionModule(Module):
     def __init__(self, image_size=None, render_size=None):
         super(FlowProjectionModule, self).__init__()
         self.cropper = None
-        self.net = FlowNet2().cuda()
+        self.net = FlowNet2()
         self.dict = torch.load("my_packages/FlowProjection/pretrained/FlowNet2_checkpoint.pth.tar")
         self.net.load_state_dict(self.dict["state_dict"])
         self.image_size = image_size
         self.render_size = render_size
-        # if image_size != None or render_size != None:
-        #     self.cropper = StaticCenterCrop(image_size, render_size)
-        # else:
-        #     self.cropper = None
 
     def forward(self, input1, input2):
         if self.cropper is None or self.image_size != input1.shape[:2] or \
