@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 from utils.object_utils import count_objects
 from torch.nn.modules.module import Module
-from utils import ToLabel
+from utils.tools import ToLabel
 from .inference import Infer_MO
 from .model import RGMP
 
