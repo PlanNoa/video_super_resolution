@@ -4,7 +4,7 @@ from torch.nn import init
 
 from .correlation_package.correlation import Correlation
 
-from .submodules import *
+from .submodules import conv, deconv, predict_flow
 
 'Parameter count , 39,175,298 '
 
