@@ -1,12 +1,12 @@
 import torch
 import numpy as np
 from torch.nn.functional import interpolate
-from loss_function import _SR_loss, _Flow_loss, _loss4object
+from utils.tools import maskprocess
+from loss_function import SR_loss, Flow_loss, GetObjectsForOBJLoss
 from my_packages.SRProjection.SRProjectionModule import SRProjectionModule
 from my_packages.DepthProjection.DepthProjectionModule import DepthProjectionModule
 from my_packages.FlowProjection.FlowProjectionModule import FlowProjectionModule
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
-from utils.tools import maskprocess
 
 
 class VSR(torch.nn.Module):
@@ -32,8 +32,8 @@ class VSR(torch.nn.Module):
             data_1 = data.clone().transpose(1, 3).transpose(2, 3)
             optical_flow = interpolate(optical_flow.transpose(1, 3).transpose(2, 3), data_1.shape[2:])
             depth_map = interpolate(depth_map.transpose(1, 3).transpose(2, 3), data_1.shape[2:])
-            estimated_image = interpolate(estimated_image.transpose(1, 3).transpose(2, 3), data_1.shape[2:]) if type(
-                estimated_image) != type(None) else data_1[0:1]
+            estimated_image = interpolate(estimated_image.transpose(1, 3).transpose(2, 3), data_1.shape[2:]) \
+                if isinstance(estimated_image, type(None)) != type(None) else data_1[0:1]
             input = torch.cat((data_1, optical_flow, depth_map, estimated_image), 0)
             # input shape: [8, 3, y/4, x/4]
 
@@ -67,7 +67,8 @@ class VSR(torch.nn.Module):
         output = self.model(input).transpose(1, 3).transpose(1, 2)
 
         high_frames[1] = torch.tensor(output, requires_grad=False)
-        with torch.no_grad(): loss = self.loss_calculate(target, high_frames) if train else None
+        with torch.no_grad():
+            loss = self.loss_calculate(target, high_frames) if train else None
         return output, loss
 
     def loss_calculate(self, target, outputs):
