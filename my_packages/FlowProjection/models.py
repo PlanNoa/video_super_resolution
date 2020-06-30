@@ -3,13 +3,24 @@ import numpy as np
 import torch.nn as nn
 from torch.nn import init
 
-from networks.resample2d_package.resample2d import Resample2d
-from networks.channelnorm_package.channelnorm import ChannelNorm
+try:
+    from networks.resample2d_package.resample2d import Resample2d
+    from networks.channelnorm_package.channelnorm import ChannelNorm
 
-from networks import FlowNetC
-from networks import FlowNetS
-from networks import FlowNetSD
-from networks import FlowNetFusion
+    from networks import FlowNetC
+    from networks import FlowNetS
+    from networks import FlowNetSD
+    from networks import FlowNetFusion
+    from networks.submodules import *
+
+except:
+    from .networks.resample2d_package.resample2d import Resample2d
+    from .networks.channelnorm_package.channelnorm import ChannelNorm
+
+    from .networks import FlowNetC
+    from .networks import FlowNetS
+    from .networks import FlowNetSD
+    from .networks import FlowNetFusion
 
 
 class FlowNet2(nn.Module):
