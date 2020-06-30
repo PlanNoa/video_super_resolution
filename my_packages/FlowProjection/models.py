@@ -1,11 +1,12 @@
 import torch
+import numpy as np
 import torch.nn as nn
 from torch.nn import init
-import numpy as np
 
 try:
     from networks.resample2d_package.resample2d import Resample2d
     from networks.channelnorm_package.channelnorm import ChannelNorm
+
     from networks import FlowNetC
     from networks import FlowNetS
     from networks import FlowNetSD
@@ -15,6 +16,7 @@ try:
 except:
     from .networks.resample2d_package.resample2d import Resample2d
     from .networks.channelnorm_package.channelnorm import ChannelNorm
+
     from .networks import FlowNetC
     from .networks import FlowNetS
     from .networks import FlowNetSD
