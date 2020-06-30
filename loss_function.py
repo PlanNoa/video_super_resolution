@@ -47,7 +47,7 @@ class TVLoss(nn.Module):
     def tensor_size(t):
         return t.size()[1] * t.size()[2] * t.size()[3]
 
-    
+
 class Flow_loss(nn.Module):
     def __init__(self):
         super(Flow_loss, self).__init__()
@@ -61,7 +61,7 @@ class Flow_loss(nn.Module):
         # flow_loss = torch.mean(self.mse_loss(outputs[0:1], outputs[1:2]), self.mse_loss(outputs[1:2], outputs[2:3])
         return 0.005 * flow_loss
 
-    
+
 class GetObjectsForOBJLoss(nn.Module):
     def __init__(self):
         super(GetObjectsForOBJLoss, self).__init__()
@@ -80,15 +80,15 @@ class GetObjectsForOBJLoss(nn.Module):
             masked_outputs = getFlowMaskedOutputs(outputs, self.masks)
             return masked_outputs
 
-        
+
 def getSRMaskedOutputs(outputs, target, masks):
     masked_objects = []
     for mask in masks:
         masked_output = torch.unsqueeze(
-            torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(), 
+            torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
                          dtype=torch.float32), 0).cuda()
         masked_target = torch.tensor(
-            np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(), 
+            np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
             dtype=torch.float32).cuda()
         masked_objects.append((masked_output, masked_target))
 
