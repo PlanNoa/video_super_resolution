@@ -72,7 +72,7 @@ class GetObjectsForOBJLoss(nn.Module):
         if isinstance(self.masks, type(None)):
             obj_segmentation = self.VOS(outputs[0], outputs[1])
             num_objects = len(np.unique(obj_segmentation.flatten()))
-            self.masks = np.array([[maskprocess(obj_segmentation==i)] for i in range(num_objects)])
+            self.masks = np.array([[maskprocess(obj_segmentation == i)] for i in range(num_objects)])
         if SR:
             masked_outputs = getSRMaskedOutputs(outputs, target, self.masks)
             return masked_outputs
