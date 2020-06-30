@@ -1,8 +1,9 @@
+import torch
 from torch.nn.modules.module import Module
 from utils.tools import StaticCenterCrop
 from utils.flow_utils import flow2img
 from .models import FlowNet2
-import torch
+
 
 class FlowProjectionModule(Module):
     def __init__(self, image_size=None, render_size=None):
@@ -15,10 +16,10 @@ class FlowProjectionModule(Module):
         self.render_size = render_size
 
     def forward(self, input1, input2):
-        if self.cropper == None or self.image_size != input1.shape[:2] or \
-           self.render_size != [((input1.shape[0])//64 )*64, ((input1.shape[1])//64)*64]:
+        if self.cropper is None or self.image_size != input1.shape[:2] or \
+                self.render_size != [((input1.shape[0]) // 64) * 64, ((input1.shape[1]) // 64) * 64]:
             self.image_size = input1.shape[:2]
-            self.render_size = [((input1.shape[0])//64 )*64, ((input1.shape[1])//64)*64]
+            self.render_size = [((input1.shape[0]) // 64) * 64, ((input1.shape[1]) // 64) * 64]
             self.cropper = StaticCenterCrop(self.image_size, self.render_size)
         images = [input1, input2]
         images = list(map(self.cropper, images))

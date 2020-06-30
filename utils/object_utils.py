@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from torch.autograd import Variable
 
+
 def count_objects(optical_flow):
     # TODO-count moving objects from optical flow
     return optical_flow
@@ -47,5 +48,4 @@ def downsample(xs, scale):
             x = cv2.resize(x, dsize=dsize, interpolation=cv2.INTER_LINEAR)
 
         ys.append(torch.unsqueeze(torch.from_numpy(x), dim=0))
-
     return ys

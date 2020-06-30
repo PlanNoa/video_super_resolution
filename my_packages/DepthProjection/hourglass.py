@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class HourglassModel(nn.Module):
     def __init__(self, num_input):
         super(HourglassModel, self).__init__()
@@ -25,6 +26,7 @@ class HourglassModel(nn.Module):
 
         return pred_d, pred_confidence
 
+
 class inception(nn.Module):
     def __init__(self, input_size, config):
         self.config = config
@@ -41,7 +43,7 @@ class inception(nn.Module):
         # Additional layers
         for i in range(1, len(config)):
             filt = config[i][0]
-            pad = int((filt-1)/2)
+            pad = int((filt - 1) / 2)
             out_a = config[i][1]
             out_b = config[i][2]
             conv = nn.Sequential(
@@ -55,7 +57,7 @@ class inception(nn.Module):
             self.convs.append(conv)
 
     def __repr__(self):
-        return "inception"+str(self.config)
+        return "inception" + str(self.config)
 
     def forward(self, x):
         ret = []
@@ -85,7 +87,7 @@ class Channels1(nn.Module):
         )  # EEE
 
     def forward(self, x):
-        return self.list[0](x)+self.list[1](x)
+        return self.list[0](x) + self.list[1](x)
 
 
 class Channels2(nn.Module):
@@ -111,7 +113,7 @@ class Channels2(nn.Module):
         )  # EE1EF
 
     def forward(self, x):
-        return self.list[0](x)+self.list[1](x)
+        return self.list[0](x) + self.list[1](x)
 
 
 class Channels3(nn.Module):
@@ -137,7 +139,8 @@ class Channels3(nn.Module):
         )  # BC
 
     def forward(self, x):
-        return self.list[0](x)+self.list[1](x)
+        return self.list[0](x) + self.list[1](x)
+
 
 class Channels4(nn.Module):
     def __init__(self):
@@ -157,4 +160,4 @@ class Channels4(nn.Module):
         self.list.append(nn.Sequential(inception(128, [[16], [3, 64, 16], [7, 64, 16], [11, 64, 16]])))
 
     def forward(self, x):
-        return self.list[0](x)+self.list[1](x)
+        return self.list[0](x) + self.list[1](x)

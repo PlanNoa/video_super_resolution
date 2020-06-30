@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 from collections import OrderedDict
 
-def ConvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias=True, valid_padding=True, padding=0, \
+
+def ConvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias=True, valid_padding=True, padding=0,
               act_type='relu', norm_type='bn', pad_type='zero', mode='CNA'):
     assert (mode in ['CNA', 'NAC']), '[ERROR] Wrong mode in [%s]!' % sys.modules[__name__]
 
@@ -25,8 +26,8 @@ def ConvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias
         return sequential(n, act, p, conv)
 
 
-def DeconvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias=True, padding=0, \
-                act_type='relu', norm_type='bn', pad_type='zero', mode='CNA'):
+def DeconvBlock(in_channels, out_channels, kernel_size, stride=1, dilation=1, bias=True, padding=0, act_type='relu',
+                norm_type='bn', pad_type='zero', mode='CNA'):
     assert (mode in ['CNA', 'NAC']), '[ERROR] Wrong mode in [%s]!' % sys.modules[__name__]
 
     p = pad(pad_type, padding) if pad_type and pad_type != 'zero' else None

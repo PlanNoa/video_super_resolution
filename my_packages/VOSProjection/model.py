@@ -1,8 +1,9 @@
 import torch
-from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 from utils.models import resnet50
+from torch.autograd import Variable
+
 
 class Encoder(nn.Module):
     def __init__(self):
