@@ -38,6 +38,8 @@ def ArgmentsParser():
     parser.add_argument('--training_dataset_root', type=str)
     parser.add_argument('--validation_dataset_root', type=str)
 
+    parser.add_argument('--ignore_warning', action='store_true')
+
     with tools.TimerBlock("Parsing Arguments") as block:
         args = parser.parse_args()
         if args.number_gpus < 0:
@@ -56,6 +58,10 @@ def ArgmentsParser():
             args.cuda_available = True
         else:
             args.cuda_available = False
+
+    if args.ignore_warning:
+        import warnings
+        warnings.filterwarnings(action='ignore')
 
     return args
 
