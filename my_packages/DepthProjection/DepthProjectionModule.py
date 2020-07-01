@@ -6,7 +6,7 @@ from my_packages.DepthProjection.MegaDepth.options.train_options import TrainOpt
 opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 
 
-class DepthProjectionModule():
+class DepthProjectionModule(nn.Module):
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
         # channel = 3

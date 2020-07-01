@@ -3,7 +3,6 @@ import colorama
 import argparse
 import torch
 import numpy as np
-import torch.nn as nn
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.nn import MSELoss
@@ -53,6 +52,10 @@ def ArgmentsParser():
             block.log('{}{}: {}{}'.format(color, argument, value, reset))
 
         args.cuda = not args.no_cuda and torch.cuda.is_available()
+        if args.cuda and args.number_gpus > 0:
+            args.cuda_available = True
+        else:
+            args.cuda_available = False
 
     return args
 
@@ -89,15 +92,9 @@ def BuildMainModelAndOptimizer(args):
     def BuildMainModel(args, block):
         block.log('Building Model')
         SRmodel = VSR()
-        if args.cuda and args.number_gpus > 1:
-            block.log('Parallelizing')
-            SRmodel = nn.parallel.DataParallel(SRmodel, device_ids=list(range(args.number_gpus)))
+        if args.cuda_available:
             block.log('Initializing CUDA')
-            SRmodel = SRmodel.cuda()
-
-        elif args.cuda and args.number_gpus > 0:
-            block.log('Initializing CUDA')
-            SRmodel = SRmodel.cuda()
+            SRmodel = tools.MakeEverythingToCuda(SRmodel)
         else:
             block.log("CUDA not being used")
 
@@ -147,17 +144,17 @@ def BuildMainModelAndOptimizer(args):
 
 
 def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
-    def MakeDataDatasetToCuda(datas):
+    def MakeDataDatasetToTensor(datas):
         data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
                                                      (int(d.shape[1] / 4), int(d.shape[2] / 4))).transpose(1, 3).
                                         transpose(1, 2) for d in dd]) for dd in datas]).squeeze()
         return data
 
-    def MakeTargetDatasetToCuda(datas):
+    def MakeTargetDatasetToTensor(datas):
         target = torch.stack([d[1] for d in datas]).type(torch.float32)
         return target
 
-    def MakeHFDatasetToCuda(datas):
+    def MakeHFDatasetToTensor(datas):
         high_frames = torch.stack([torch.stack(d) for d in datas]).squeeze().type(torch.float32)
         return high_frames
 
@@ -181,14 +178,14 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                             leave=True, position=offset, desc=title)
 
         for batch_idx, datas in enumerate(progress):
-            data = MakeDataDatasetToCuda(datas)
-            target = MakeTargetDatasetToCuda(datas)
-            high_frames = MakeHFDatasetToCuda(datas)
+            data = MakeDataDatasetToTensor(datas)
+            target = MakeTargetDatasetToTensor(datas)
+            high_frames = MakeHFDatasetToTensor(datas)
 
-            if args.cuda and args.number_gpus > 0:
-                data = data.cuda()
-                target = target.cuda()
-                high_frames = high_frames.cuda()
+            if args.cuda_available:
+                data = tools.MakeEverythingToCuda(data)
+                target = tools.MakeEverythingToCuda(target)
+                high_frames = tools.MakeEverythingToCuda(high_frames)
 
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):

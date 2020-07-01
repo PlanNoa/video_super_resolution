@@ -9,11 +9,11 @@ def count_objects(optical_flow):
     return optical_flow
 
 
-def ToCudaVariable(xs, volatile=False):
+def ToCudaVariable(xs):
     if torch.cuda.is_available():
-        return [Variable(x.cuda(), volatile=volatile) for x in xs]
+        return [Variable(x.cuda()) for x in xs]
     else:
-        return [Variable(x, volatile=volatile) for x in xs]
+        return [Variable(x) for x in xs]
 
 
 def upsample(x, size):

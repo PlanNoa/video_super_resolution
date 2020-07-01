@@ -1,6 +1,6 @@
 import argparse
 import os
-from ..util import util
+from utils.tools import mkdirs
 
 
 class BaseOptions():
@@ -74,7 +74,7 @@ class BaseOptions():
 
         # save to the disk
         expr_dir = os.path.join(self.opt.checkpoints_dir, self.opt.name)
-        util.mkdirs(expr_dir)
+        mkdirs(expr_dir)
         file_name = os.path.join(expr_dir, 'opt.txt')
         with open(file_name, 'wt') as opt_file:
             opt_file.write('------------ Options -------------\n')
