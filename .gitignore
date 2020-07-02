@@ -4,3 +4,7 @@ pretrained/
 __pycache__/
 .pcy
 data/
+.jpg
+.png
+.PNG
+.JPEG
