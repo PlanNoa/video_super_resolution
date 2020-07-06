@@ -2,8 +2,8 @@
 
 ### Related Repositories
 - [Flownet2](https://github.com/NVIDIA/flownet2-pytorch)
-- [MVDepthNet](https://github.com/HKUST-Aerial-Robotics/MVDepthNet)
-- [RGMP](https://github.com/seoungwugoh/RGMP)
+- ~[MVDepthNet](https://github.com/HKUST-Aerial-Robotics/MVDepthNet)~ [MegaDepth](https://github.com/baowenbo/DAIN/tree/master/MegaDepth)
+- ~[RGMP](https://github.com/seoungwugoh/RGMP)~ [OSVOS](https://github.com/kmaninis/OSVOS-PyTorch)
 - [SRFBN](https://github.com/Paper99/SRFBN_CVPR19)
 
 ### Main Goal
