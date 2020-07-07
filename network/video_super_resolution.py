@@ -55,7 +55,7 @@ class VSR(torch.nn.Module):
             optical_flow = interpolate(optical_flow.transpose(1, 3).transpose(2, 3), data_2.shape[2:])
             depth_map = interpolate(depth_map.transpose(1, 3).transpose(2, 3), data_2.shape[2:])
             VOSmask = maskprocess(self.VOSModule(data_2[0].clone().transpose(0, 1).transpose(1, 2),
-                                                 data_2[1].clone().transpose(0, 1).transpose(1, 2)) != 0)
+                                                 data_2[1].clone().transpose(0, 1).transpose(1, 2)))
 
         data = data.transpose(1, 3).transpose(2, 3)
         masked_estimated_image = torch.tensor(
@@ -72,6 +72,7 @@ class VSR(torch.nn.Module):
         return output, loss
 
     def loss_calculate(self, target, outputs):
+        #ToDO: check objloss for OSVOS
         genSR_loss = self.SR_loss(outputs[0:1], target)
         objSR_loss = torch.mean(
             torch.tensor([self.SR_loss(i, j) for i, j in self.loss4object(outputs[:2], target, SR=True)]))

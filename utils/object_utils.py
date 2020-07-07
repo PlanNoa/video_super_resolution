@@ -1,51 +1,38 @@
-import cv2
-import torch
 import numpy as np
-from torch.autograd import Variable
+
+import torch
+from torch.nn import functional as F
 
 
-def count_objects(optical_flow):
-    # TODO-count moving objects from optical flow
-    return optical_flow
+def center_crop(x, height, width):
+    crop_h = torch.FloatTensor([x.size()[2]]).sub(height).div(-2)
+    crop_w = torch.FloatTensor([x.size()[3]]).sub(width).div(-2)
+
+    return F.pad(x, [int(crop_w.ceil()[0]), int(crop_w.floor()[0]), int(crop_h.ceil()[0]), int(crop_h.floor()[0])])
 
 
-def ToCudaVariable(xs):
-    if torch.cuda.is_available():
-        return [Variable(x.cuda()) for x in xs]
+def upsample_filt(size):
+    factor = (size + 1) // 2
+    if size % 2 == 1:
+        center = factor - 1
     else:
-        return [Variable(x) for x in xs]
+        center = factor - 0.5
+    og = np.ogrid[:size, :size]
+    return (1 - abs(og[0] - center) / factor) * \
+           (1 - abs(og[1] - center) / factor)
 
 
-def upsample(x, size):
-    x = x.numpy()[0]
-    dsize = (size[1], size[0])
-    x = cv2.resize(x, dsize=dsize, interpolation=cv2.INTER_LINEAR)
-    return torch.unsqueeze(torch.from_numpy(x), dim=0)
+def interp_surgery(lay):
+        m, k, h, w = lay.weight.data.size()
+        if m != k:
+            print('input + output channels need to be the same')
+            raise ValueError
+        if h != w:
+            print('filters need to be square')
+            raise ValueError
+        filt = upsample_filt(h)
 
+        for i in range(m):
+            lay.weight[i, i, :, :].data.copy_(torch.from_numpy(filt))
 
-def downsample(xs, scale):
-    if scale == 1:
-        return xs
-
-    # find new size dividable by 32
-    h = xs[0].size()[2]
-    w = xs[0].size()[3]
-
-    new_h = int(h * scale)
-    new_w = int(w * scale)
-    new_h = new_h + 32 - new_h % 32
-    new_w = new_w + 32 - new_w % 32
-
-    dsize = (new_w, new_h)
-    ys = []
-    for x in xs:
-        x = x.numpy()[0]  # c,h,w
-        if x.ndim == 3:
-            x = np.transpose(x, [1, 2, 0])
-            x = cv2.resize(x, dsize=dsize, interpolation=cv2.INTER_LINEAR)
-            x = np.transpose(x, [2, 0, 1])
-        else:
-            x = cv2.resize(x, dsize=dsize, interpolation=cv2.INTER_LINEAR)
-
-        ys.append(torch.unsqueeze(torch.from_numpy(x), dim=0))
-    return ys
+        return lay.weight.data
