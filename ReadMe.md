@@ -7,11 +7,11 @@
 - [SRFBN](https://github.com/Paper99/SRFBN_CVPR19)
 
 ### Main Goal
-1. optical flow net Module(05.05 Done)
-2. video object segmentation net Module(05.20 Done)
-3. depth map net Modkoule(05.20 Start)
-4. super resolution net(ToDo)
-5. loss function with etc utils(05.23 Start)
+1. optical flow net Module
+2. video object segmentation net Module
+3. depth map net Module
+4. super resolution net
+5. loss function with etc utils
 6. training(ToDo)
 7. testing(ToDo)
 
