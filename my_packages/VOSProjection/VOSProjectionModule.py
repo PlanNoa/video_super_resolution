@@ -15,7 +15,7 @@ class VOSProjectionModule(Module):
         # (2, y, x, 3)
         imgs = [input1.cpu().numpy(), input2.cpu().numpy()]
         imgs = np.array(
-            [np.subtract(img, np.array((104.00699, 116.66877, 122.67892), dtype=np.float32)) for img in imgs])
+            [np.subtract(img, self.meanval) for img in imgs])
         imgs = torch.tensor(imgs.transpose((0, 3, 1, 2))).cuda()
         # (2, 3, y, x)
 

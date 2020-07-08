@@ -74,7 +74,7 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
 
 
 def maskprocess(mask):
-    return np.logical_not(np.stack((mask,) * 3, axis=-1))
+    return np.stack((mask,) * 3, axis=-1)
 
 
 def ToLabel(E):
@@ -95,5 +95,21 @@ def mkdir(path):
         os.makedirs(path)
 
 
-def MakeEverythingToCuda(x):
+def MakeCuda(x):
     return x.cuda()
+
+
+def transpose1323(x):
+    return x.transpose(1, 3).transpose(2, 3)
+
+
+def transpose1223(x):
+    return x.transpose(1, 2).transpose(2, 3)
+
+
+def transpose1312(x):
+    return x.transpose(1, 3).transpose(1, 2)
+
+
+def transpose1201(x):
+    return x.transpose(1, 2).transpose(0, 1)
