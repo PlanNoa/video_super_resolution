@@ -200,10 +200,9 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
-                # loss_val = torch.mean(losses)
-                # total_loss += loss_val.item()
-                # loss.data = loss_val.data
-                total_loss += loss.item()
+                loss_val = torch.mean(losses)
+                total_loss += loss_val.item()
+                loss.data = loss_val.data
 
                 if not is_validate:
                     loss.backward()
@@ -260,7 +259,8 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                 tools.save_checkpoint({'arch': args.model_name,
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
-                                       'best_EPE': train_loss},
+                                       'best_EPE': train_loss,
+                                       'optimizer': optimizer},
                                       False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
