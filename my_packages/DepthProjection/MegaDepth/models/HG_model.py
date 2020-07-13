@@ -11,33 +11,16 @@ class HGModel(BaseModel):
     def __init__(self, opt, pretrained=None):
         BaseModel.initialize(self, opt)
 
-        # print("================================LOADING Hourglass NETWORK=========================================")
         model = pytorch_DIW_scratch.pytorch_DIW_scratch
-        # model_temp = model
-        # model= torch.nn.parallel.DataParallel(model, device_ids = [0,1])
-        # model_parameters = self.load_network(model, 'G', 'best_vanila')
         if pretrained is None:
-            # model_parameters = self.load_network(model, 'G', 'best_generalization')
-            #
-            # model.load_state_dict(model_parameters)
-            # self.netG = model.cuda()
             self.netG = model
-            # print("No weights loaded for Hourglass Network")
         else:
             pretrained_dict = torch.load(pretrained)
 
             model_dict = model.state_dict()
-            # print(len(pretrained_dict))
-            # print(len(model_dict))
-            # 1. filter out unnecessary keys
-            # the saved model contains a 'module.' prefix for the data.parallel reason
             pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items()}  # and not k[:10]== 'rectifyNet'}
-            # print(str(len(pretrained_dict)) + " are updated")
-            # 2. overwrite entries in the existing state dict
             model_dict.update(pretrained_dict)
-            # 3. load the new state dict
             model.load_state_dict(model_dict)
-            pretrained_dict = None
             self.netG = model
 
     def batch_classify(self, z_A_arr, z_B_arr, ground_truth):
@@ -59,7 +42,6 @@ class HGModel(BaseModel):
         inequal_error_count = torch.sum(inequal_error_count)
 
         error_count = torch.sum(diff)  # diff[diff !=0]
-        # error_count = error_count.size(0)
 
         equal_error_count = error_count - inequal_error_count
 
@@ -94,11 +76,8 @@ class HGModel(BaseModel):
             predict_depth = predict_depth.squeeze(0)
             ground_truth = targets["sdr_gt"][i]
 
-            # print(x_A_arr.size())
-            # print(y_A_arr.size())
 
             z_A_arr = torch.gather(torch.index_select(predict_depth, 1, x_A_arr.cuda()), 0, y_A_arr.view(1, -1).cuda())
-            # predict_depth:index(2, x_A_arr):gather(1, y_A_arr:view(1, -1))
             z_B_arr = torch.gather(torch.index_select(predict_depth, 1, x_B_arr.cuda()), 0, y_B_arr.view(1, -1).cuda())
 
             z_A_arr = z_A_arr.squeeze(0)

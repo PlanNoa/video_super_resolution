@@ -9,10 +9,7 @@ opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
 class DepthProjectionModule(nn.Module):
     def __init__(self):
         super(DepthProjectionModule, self).__init__()
-        # channel = 3
-        # filter_size = 4
-        # timestep = 0.5
-        # i = 0
+
         self.model = create_model(opt)
         self.model.switch_to_eval()
 
@@ -41,14 +38,6 @@ class DepthProjectionModule(nn.Module):
                                         cur_filter_input[:, 3:, ...]), dim=0))
         # log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
 
-        """
-        cur_ctx_output = [
-            torch.cat((self.ctxNet(cur_filter_input[:, :3, ...]),
-                       log_depth[0].detach()), dim=1),
-            torch.cat((self.ctxNet(cur_filter_input[:, 3:, ...]),
-                       log_depth[1].detach()), dim=1)
-        ]
-        """
         temp = self.forward_singlePath(self.initScaleNets_filter, cur_filter_input, 'filter')
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
@@ -118,12 +107,7 @@ class DepthProjectionModule(nn.Module):
         k = 0
         temp = []
         for layers in modulelist:  # self.initScaleNets_offset:
-            # print(type(layers).__name__)
-            # print(k)
-            # if k == 27:
-            #     print(k)
-            #     pass
-            # use the pop-pull logic, looks like a stack.
+
             if k == 0:
                 temp = layers(input)
             else:
@@ -151,11 +135,7 @@ class DepthProjectionModule(nn.Module):
         layers = nn.Sequential(
             nn.Conv2d(input_filter, input_filter, kernel_size, 1, padding),
             nn.ReLU(inplace=False),
-            nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-            # nn.ReLU(inplace=False),
-            # nn.Conv2d(output_filter, output_filter, kernel_size, 1, padding),
-            # nn.ReLU(inplace=False),
-            # nn.Conv2d(output_filter, output_filter, kernel_size, 1, padding),
+            nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding)
         )
         return layers
 
@@ -166,7 +146,6 @@ class DepthProjectionModule(nn.Module):
                   padding):
         layers = nn.Sequential(*[
             nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-
             nn.ReLU(inplace=False)
         ])
         return layers
@@ -179,11 +158,7 @@ class DepthProjectionModule(nn.Module):
 
         layers = nn.Sequential(*[
             nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-
             nn.ReLU(inplace=False),
-
-            # nn.BatchNorm2d(output_filter),
-
             nn.MaxPool2d(kernel_size_pooling)
         ])
         return layers
@@ -195,16 +170,9 @@ class DepthProjectionModule(nn.Module):
                          padding, unpooling_factor):
 
         layers = nn.Sequential(*[
-
             nn.Upsample(scale_factor=unpooling_factor, mode='bilinear'),
-
             nn.Conv2d(input_filter, output_filter, kernel_size, 1, padding),
-
             nn.ReLU(inplace=False),
-
-            # nn.BatchNorm2d(output_filter),
-
-            # nn.UpsamplingBilinear2d(unpooling_size,scale_factor=unpooling_size[0])
         ])
         return layers
 

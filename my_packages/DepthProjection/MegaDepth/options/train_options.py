@@ -34,6 +34,4 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--no_flip', action='store_true',
                                  help='if specified, do not flip the images for data argumentation')
 
-        # NOT-IMPLEMENTED self.parser.add_argument('--preprocessing', type=str, default='resize_and_crop',
-        # help='resizing/cropping strategy')
         self.isTrain = True

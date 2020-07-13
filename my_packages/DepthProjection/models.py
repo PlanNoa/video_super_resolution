@@ -18,42 +18,14 @@ class Pix2PixModel(base_model.BaseModel):
 
     def __init__(self, opt, _isTrain=False):
         self.initialize(opt)
-
         self.num_input = 3
-
-        print(
-                '======================================  DIW NETWORK TRAIN FROM %s======================='
-                % self.mode)
-
         new_model = hourglass.HourglassModel(self.num_input)
-
-        print(
-            '===================Loading Pretrained Model OURS ==================================='
-        )
-
         model_parameters = self.load_network(
             new_model, 'G', 'best_depth_Ours_Bilinear_inc_3')
-
         new_model.load_state_dict(model_parameters)
-
         new_model = torch.nn.parallel.DataParallel(new_model.cuda(), device_ids=range(torch.cuda.device_count()))
-
         self.netG = new_model
-
         self.netG.train()
-        """
-        self.old_lr = opt.lr
-
-        if True:
-            self.criterion_joint = networks.JointLoss(opt)
-            # initialize optimizers
-            self.optimizer_G = torch.optim.Adam(
-                self.netG.parameters(), lr=opt.lr, betas=(0.9, 0.999))
-            self.scheduler = networks.get_scheduler(self.optimizer_G, opt)
-            print('---------- Networks initialized -------------')
-            networks.print_network(self.netG)
-            print('-----------------------------------------------')
-        """
 
     def set_writer(self, writer):
         self.writer = writer
@@ -70,9 +42,6 @@ class Pix2PixModel(base_model.BaseModel):
             self.targets['env_mask'].cuda(), requires_grad=False).unsqueeze(1)
         keypoints_img = autograd.Variable(
             self.targets['keypoints_img'].cuda(), requires_grad=False).unsqueeze(1)
-
-        # stack inputs
-        stack_inputs = None
 
         if self.num_input == 7:
             input_log_depth = autograd.Variable(
@@ -265,7 +234,6 @@ class Pix2PixModel(base_model.BaseModel):
 
         prediction_d, pred_confidence = self.netG.forward(stack_inputs)
         prediction_d = torch.exp(prediction_d.squeeze(1))
-        pred_confidence = pred_confidence.squeeze(1)
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
@@ -288,9 +256,6 @@ class Pix2PixModel(base_model.BaseModel):
             gt_depth = targets['depth_gt'][i]
             gt_mask = targets['gt_mask'][i]
             human_mask = 1.0 - targets['env_mask'][i]
-
-            # K = targets['K'][i]
-            # T_1_G = targets['T_1_G'][i]
 
             hdf5_file_write = h5py.File(output_path, 'w')
             hdf5_file_write.create_dataset(
@@ -576,8 +541,3 @@ class Pix2PixModel(base_model.BaseModel):
 
     def save(self, label):
         self.save_network(self.netG, 'G', label, self.gpu_ids)
-
-    def update_learning_rate(self):
-        self.scheduler.step()
-        lr = self.optimizer_G.param_groups[0]['lr']
-        print('Current learning rate = %.7f' % lr)
