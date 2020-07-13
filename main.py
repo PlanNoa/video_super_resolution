@@ -9,6 +9,7 @@ from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
 from utils import tools
+from utils.tools import MakeCuda, transpose1312, transpose1323
 from utils.video_utils import VideoDataset
 
 
@@ -100,7 +101,7 @@ def BuildMainModelAndOptimizer(args):
         SRmodel = VSR()
         if args.cuda_available:
             block.log('Initializing CUDA')
-            SRmodel = tools.MakeEverythingToCuda(SRmodel)
+            SRmodel = MakeCuda(SRmodel)
         else:
             block.log("CUDA not being used")
 
@@ -151,9 +152,9 @@ def BuildMainModelAndOptimizer(args):
 
 def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
     def MakeDataDatasetToTensor(datas):
-        data = torch.stack([torch.stack([interpolate(d.transpose(1, 3).transpose(2, 3).type(torch.float32),
-                                                     (int(d.shape[1] / 4), int(d.shape[2] / 4))).transpose(1, 3).
-                                        transpose(1, 2) for d in dd]) for dd in datas]).squeeze()
+        data = torch.stack([torch.stack([transpose1312(interpolate(transpose1323(d).type(torch.float32),
+                                                                         (int(d.shape[1] / 4), int(d.shape[2] / 4))))
+                                         for d in dd]) for dd in datas]).squeeze()
         return data
 
     def MakeTargetDatasetToTensor(datas):
@@ -189,9 +190,9 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
             high_frames = MakeHFDatasetToTensor(datas)
 
             if args.cuda_available:
-                data = tools.MakeEverythingToCuda(data)
-                target = tools.MakeEverythingToCuda(target)
-                high_frames = tools.MakeEverythingToCuda(high_frames)
+                data = MakeCuda(data)
+                target = MakeCuda(target)
+                high_frames = MakeCuda(high_frames)
 
             estimated_image = None
             for x, y, high_frame in zip(data, target, high_frames):
@@ -199,10 +200,9 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                 output, losses = model(x, y, high_frame, estimated_image)
                 estimated_image = output
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
-                # loss_val = torch.mean(losses)
-                # total_loss += loss_val.item()
-                # loss.data = loss_val.data
-                total_loss += loss.item()
+                loss_val = torch.mean(losses)
+                total_loss += loss_val.item()
+                loss.data = loss_val.data
 
                 if not is_validate:
                     loss.backward()
@@ -259,7 +259,8 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                 tools.save_checkpoint({'arch': args.model_name,
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
-                                       'best_EPE': train_loss},
+                                       'best_EPE': train_loss,
+                                       'optimizer': optimizer},
                                       False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()

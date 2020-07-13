@@ -3,14 +3,14 @@ from torch import nn
 import numpy as np
 from my_packages.VOSProjection.VOSProjectionModule import VOSProjectionModule
 from utils.models import vgg16
-from utils.tools import maskprocess
+from utils.tools import maskprocess, transpose1323, MakeCuda
 
 
 class SR_loss(nn.Module):
     def __init__(self):
         super(SR_loss, self).__init__()
         vgg = vgg16()
-        loss_network = nn.Sequential(*list(vgg.features)[:31]).eval()
+        loss_network = nn.Sequential(*list(vgg.features)[:31])
         for param in loss_network.parameters():
             param.requires_grad = False
         self.loss_network = loss_network
@@ -18,8 +18,8 @@ class SR_loss(nn.Module):
         self.tv_loss = TVLoss()
 
     def forward(self, output, target):
-        output = output.transpose(1, 3).transpose(2, 3).cuda()
-        target = target.transpose(1, 3).transpose(2, 3).cuda()
+        output = MakeCuda(transpose1323(output))
+        target = MakeCuda(transpose1323(target))
         p_output = self.loss_network(output)
         p_target = self.loss_network(target)
         perception_loss = self.mse_loss(p_output, p_target)
@@ -66,43 +66,37 @@ class GetObjectsForOBJLoss(nn.Module):
     def __init__(self):
         super(GetObjectsForOBJLoss, self).__init__()
         self.VOS = VOSProjectionModule().eval().cpu()
-        self.masks = None
+        self.mask = None
 
     def forward(self, outputs, target=None, SR=False):
-        if isinstance(self.masks, type(None)):
+        if isinstance(self.mask, type(None)):
             obj_segmentation = self.VOS(outputs[0], outputs[1])
-            num_objects = len(np.unique(obj_segmentation.flatten()))
-            self.masks = np.array([[maskprocess(obj_segmentation == i)] for i in range(num_objects)])
+            self.mask = maskprocess(obj_segmentation == 1)
+
         if SR:
-            masked_outputs = getSRMaskedOutputs(outputs, target, self.masks)
+            masked_outputs = getSRMaskedOutputs(outputs, target, self.mask)
             return masked_outputs
         else:
-            masked_outputs = getFlowMaskedOutputs(outputs, self.masks)
+            masked_outputs = getFlowMaskedOutputs(outputs, self.mask)
             return masked_outputs
 
 
-def getSRMaskedOutputs(outputs, target, masks):
-    masked_objects = []
-    for mask in masks:
-        masked_output = torch.unsqueeze(
-            torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
-                         dtype=torch.float32), 0).cuda()
-        masked_target = torch.tensor(
-            np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
-            dtype=torch.float32).cuda()
-        masked_objects.append((masked_output, masked_target))
-
-    return masked_objects
+def getSRMaskedOutputs(outputs, target, mask):
+    masked_output = torch.unsqueeze(
+        torch.tensor(np.ma.MaskedArray(np.array(outputs[1].cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
+                     dtype=torch.float32), 0).cuda()
+    masked_target = torch.tensor(
+        np.ma.MaskedArray(np.array(target.cpu(), dtype=np.uint8), mask, fill_value=0).filled(),
+        dtype=torch.float32).cuda()
+    masked_object = (masked_output, masked_target)
+    return masked_object
 
 
-def getFlowMaskedOutputs(outputs, masks):
-    masked_objects = []
-    for mask in masks:
-        masked_outputs = []
-        for output in outputs:
-            masked_output = torch.tensor(
-                np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled())
-            masked_outputs.append(masked_output)
-        masked_outputs = torch.stack(masked_outputs).type(torch.float32).cuda()
-        masked_objects.append(masked_outputs)
-    return masked_objects
+def getFlowMaskedOutputs(outputs, mask):
+    masked_outputs = []
+    for output in outputs:
+        masked_output = torch.tensor(
+            np.ma.MaskedArray(np.array(output.cpu(), dtype=np.uint8), mask, fill_value=0).filled())
+        masked_outputs.append(masked_output)
+    masked_object = torch.stack(masked_outputs).type(torch.float32).cuda()
+    return masked_object

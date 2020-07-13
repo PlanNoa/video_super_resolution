@@ -3,15 +3,15 @@
 ### Related Repositories
 - [Flownet2](https://github.com/NVIDIA/flownet2-pytorch)
 - ~[MVDepthNet](https://github.com/HKUST-Aerial-Robotics/MVDepthNet)~ [MegaDepth](https://github.com/baowenbo/DAIN/tree/master/MegaDepth)
-- ~[RGMP](https://github.com/seoungwugoh/RGMP)~ [OSVOS](https://github.com/kmaninis/OSVOS-PyTorch)
+- [OSVOS](https://github.com/kmaninis/OSVOS-PyTorch)
 - [SRFBN](https://github.com/Paper99/SRFBN_CVPR19)
 
 ### Main Goal
-1. optical flow net Module(05.05 Done)
-2. video object segmentation net Module(05.20 Done)
-3. depth map net Modkoule(05.20 Start)
-4. super resolution net(ToDo)
-5. loss function with etc utils(05.23 Start)
+1. optical flow net Module
+2. video object segmentation net Module
+3. depth map net Module
+4. super resolution net
+5. loss function with etc utils
 6. training(ToDo)
 7. testing(ToDo)
 
@@ -19,7 +19,6 @@
 - srfbn memory problem.(srfbn get (n, 3, y/2, x/2) size input, but our model use t-1 estimated image with other inputs. need to downsample t-1 estimated image without data loss. or we can change srfbn output) 
 - #####  define new depthnet module
 - #####  define new way to calculate flow-loss
-- count_object function on object_utils.py
 - Inference function on main.py
 - etc..
 
