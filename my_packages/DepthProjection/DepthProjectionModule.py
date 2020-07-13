@@ -3,7 +3,7 @@ import torch.nn as nn
 from my_packages.DepthProjection.MegaDepth.models.models import create_model
 from my_packages.DepthProjection.MegaDepth.options.train_options import TrainOptions
 
-opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
+opt = TrainOptions().parse()
 
 
 class DepthProjectionModule(nn.Module):
@@ -36,33 +36,14 @@ class DepthProjectionModule(nn.Module):
         print(cur_filter_input[:, :3, ...].size(), cur_filter_input[:, 3:, ...].size())
         temp = self.depthNet(torch.cat((cur_filter_input[:, :3, ...],
                                         cur_filter_input[:, 3:, ...]), dim=0))
-        # log_depth = [temp[:cur_filter_input.size(0)], temp[cur_filter_input.size(0):]]
 
         temp = self.forward_singlePath(self.initScaleNets_filter, cur_filter_input, 'filter')
         cur_filter_output = [self.forward_singlePath(self.initScaleNets_filter1, temp, name=None),
                              self.forward_singlePath(self.initScaleNets_filter2, temp, name=None)]
 
-        # depth_inv = [1e-6 + 1 / torch.exp(d) for d in log_depth]
-
-        print(temp.size())
-        print(cur_filter_output[0].size())
         cur_filter_output = torch.squeeze(cur_filter_output[0])
-        # import matplotlib.image as mpimg
-        from matplotlib.pyplot import imshow
-        cur_filter_output = cur_filter_output.detach().numpy()
-        imshow(cur_filter_output)
 
     def get_MonoNet5(self, channel_in, channel_out, name):
-
-        '''
-        Generally, the MonoNet is aimed to provide a basic module for generating either offset, or filter, or occlusion.
-        :param channel_in: number of channels that composed of multiple useful information like reference frame,
-        previous coarser-scale result
-        :param channel_out: number of output the offset or filter or occlusion
-        :param name: to distinguish between offset, filter and occlusion,
-        since they should use different activations in the last network layer
-        :return: output the network model
-        '''
         model = []
 
         # block1
@@ -150,7 +131,6 @@ class DepthProjectionModule(nn.Module):
         ])
         return layers
 
-    '''keep this function'''
 
     @staticmethod
     def conv_relu_maxpool(input_filter, output_filter, kernel_size,
@@ -163,7 +143,6 @@ class DepthProjectionModule(nn.Module):
         ])
         return layers
 
-    '''klkeep this function'''
 
     @staticmethod
     def conv_relu_unpool(input_filter, output_filter, kernel_size,

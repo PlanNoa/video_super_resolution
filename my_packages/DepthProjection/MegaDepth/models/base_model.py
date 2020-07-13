@@ -34,4 +34,3 @@ class BaseModel():
         print(save_path)
         model = torch.load(save_path)
         return model
-        # network.load_state_dict(torch.load(save_path))

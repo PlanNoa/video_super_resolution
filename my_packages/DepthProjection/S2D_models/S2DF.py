@@ -3,8 +3,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-# __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-# 'resnet152','resnet18_conv1']
+
 __all__ = ['S2DF', 'S2DF_3dense', 'S2DF_3dense_nodilation',
            'S2DF_3last', 'S2DF_2dense', 'BasicBlock']
 
@@ -29,10 +28,8 @@ class BasicBlock(nn.Module):
     def __init__(self, inplanes, planes, dilation=1, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, dilation, stride)
-        # self.bn1 = nn.BatchNorm2d(planes)
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = conv3x3(planes, planes)
-        # self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
 
@@ -40,11 +37,9 @@ class BasicBlock(nn.Module):
         residual = x
 
         out = self.conv1(x)
-        # out = self.bn1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
-        # out = self.bn2(out)
 
         if self.downsample is not None:
             residual = self.downsample(x)
@@ -225,13 +220,3 @@ def S2DF_3last():
 def S2DF_2dense():
     model = S2DF(BasicBlock, 2, dense=True)
     return model
-
-
-if __name__ == '__main__':
-    x = Variable(torch.randn(2, 3, 224, 448))
-    # model =    S2DF(BasicBlock,3,True)
-    # y = model(x)
-
-    model = S2DF(BasicBlock, 4, False)
-    y = model(x)
-    exit(0)

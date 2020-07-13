@@ -140,12 +140,10 @@ class Pix2PixModel(base_model.BaseModel):
             vutils.make_grid(input_confidence[:8, :, :, :], normalize=True), n_iter)
 
     def backward_G(self, n_iter):
-        # Combined loss
         self.loss_joint = self.criterion_joint(self.input_images, self.prediction_d,
                                                self.pred_confidence, self.targets)
         print('Train loss is %f ' % self.loss_joint)
 
-        # add to tensorboard
         if n_iter % 100 == 0:
             self.write_summary('Train', self.input_images, self.prediction_d,
                                self.pred_confidence, self.targets, n_iter,
@@ -161,9 +159,7 @@ class Pix2PixModel(base_model.BaseModel):
         self.optimizer_G.step()
 
     def evlaute_M_error(self, input_, targets, n_iter, write_to_summary):
-        # switch to evaluation mode
         input_imgs = autograd.Variable(input_.cuda(), requires_grad=False)
-        # stack inputs
         human_mask = 1.0 - autograd.Variable(
             targets['env_mask'].cuda(), requires_grad=False).unsqueeze(1)
         keypoints_img = autograd.Variable(
@@ -185,9 +181,6 @@ class Pix2PixModel(base_model.BaseModel):
                 (input_imgs, human_mask, input_log_depth, input_confidence), 1)
         elif self.num_input == 3:
             stack_inputs = input_imgs
-        else:
-            print('SOMETHING WRONG!!!!!!!!!!!!!!!!!!!!!!!')
-            sys.exit()
 
         prediction_d, _ = self.netG.forward(stack_inputs)
 

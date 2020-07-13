@@ -61,58 +61,6 @@ def init_weights(net, init_type='normal', gain=0.02):
     net.apply(init_func)
 
 
-def get_scheduler(optimizer, opt):
-    if opt.lr_policy == 'lambda':
-
-        def lambda_rule(epoch):
-            lr_l = 1.0 - max(0, epoch + 1 + opt.epoch_count -
-                             opt.niter) / float(opt.niter_decay + 1)
-            return lr_l
-
-        scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
-    elif opt.lr_policy == 'step':
-        scheduler = optim.lr_scheduler.StepLR(
-            optimizer, step_size=opt.lr_decay_epoch, gamma=0.5)
-    elif opt.lr_policy == 'plateau':
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
-    else:
-        return NotImplementedError('learning rate policy [%s] is not implemented',
-                                   opt.lr_policy)
-    return scheduler
-
-
-def get_norm_layer(norm_type='instance'):
-    if norm_type == 'batch':
-        norm_layer = functools.partial(nn.BatchNorm2d, affine=True)
-    elif norm_type == 'instance':
-        norm_layer = functools.partial(
-            nn.InstanceNorm2d, affine=False, track_running_stats=True)
-    elif norm_type == 'none':
-        norm_layer = None
-    else:
-        raise NotImplementedError('normalization layer [%s] is not found' %
-                                  norm_type)
-    return norm_layer
-
-
-def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
-    if len(gpu_ids) > 0:
-        assert (torch.cuda.is_available())
-        net.to(gpu_ids[0])
-        net = torch.nn.DataParallel(net, gpu_ids)
-    init_weights(net, init_type, gain=init_gain)
-    return net
-
-
-def print_network(net_):
-    num_params = 0
-    for param in net_.parameters():
-        num_params += param.numel()
-    print(net_)
-    print('Total number of parameters: %d' % num_params)
-
-
 ##############################################################################
 # Classes
 ##############################################################################

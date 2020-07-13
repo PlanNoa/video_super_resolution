@@ -51,8 +51,8 @@ class BaseOptions():
     def parse(self):
         if not self.initialized:
             self.initialize()
-        self.opt = self.parser.parse_known_args()[0]  # parse_args()
-        self.opt.isTrain = self.isTrain  # train or test
+        self.opt = self.parser.parse_known_args()[0]
+        self.opt.isTrain = self.isTrain
 
         str_ids = self.opt.gpu_ids.split(',')
         self.opt.gpu_ids = []
@@ -63,7 +63,6 @@ class BaseOptions():
 
         args = vars(self.opt)
 
-        # save to the disk
         expr_dir = os.path.join(self.opt.checkpoints_dir, self.opt.name)
         mkdirs(expr_dir)
         file_name = os.path.join(expr_dir, 'opt.txt')
