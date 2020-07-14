@@ -15,11 +15,6 @@ class LambdaBase(nn.Sequential):
         return output if output else input
 
 
-class Lambda(LambdaBase):
-    def forward(self, input):
-        return self.lambda_func(self.forward_prepare(input))
-
-
 class LambdaMap(LambdaBase):
     def forward(self, input):
         return list(map(self.lambda_func, self.forward_prepare(input)))
