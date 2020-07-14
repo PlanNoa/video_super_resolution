@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from torch.autograd import Variable
-from my_packages.DepthProjection.MegaDepth import pytorch_DIW_scratch
+from my_packages.DepthProjection.models import pytorch_DIW_scratch
 
 
 class HGModel(nn.Module):
