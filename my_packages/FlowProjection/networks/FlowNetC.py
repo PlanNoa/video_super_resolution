@@ -6,8 +6,6 @@ from .correlation_package.correlation import Correlation
 
 from .submodules import conv, deconv, predict_flow
 
-'Parameter count , 39,175,298 '
-
 
 class FlowNetC(nn.Module):
     def __init__(self, batchNorm=True, div_flow=20):
@@ -58,7 +56,6 @@ class FlowNetC(nn.Module):
                 if m.bias is not None:
                     init.uniform_(m.bias)
                 init.xavier_uniform_(m.weight)
-                # init_deconv_bilinear(m.weight)
         self.upsample1 = nn.Upsample(scale_factor=4, mode='bilinear')
 
     def forward(self, x):

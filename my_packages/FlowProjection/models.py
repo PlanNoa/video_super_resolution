@@ -69,23 +69,6 @@ class FlowNet2(nn.Module):
                 if m.bias is not None:
                     init.uniform_(m.bias)
                 init.xavier_uniform_(m.weight)
-                # init_deconv_bilinear(m.weight)
-
-    def init_deconv_bilinear(self, weight):
-        f_shape = weight.size()
-        heigh, width = f_shape[-2], f_shape[-1]
-        f = np.ceil(width / 2.0)
-        c = (2 * f - 1 - f % 2) / (2.0 * f)
-        bilinear = np.zeros([heigh, width])
-        for x in range(width):
-            for y in range(heigh):
-                value = (1 - abs(x / f - c)) * (1 - abs(y / f - c))
-                bilinear[x, y] = value
-        min_dim = min(f_shape[0], f_shape[1])
-        weight.data.fill_(0.)
-        for i in range(min_dim):
-            weight.data[i, i, :, :] = torch.from_numpy(bilinear)
-        return
 
     def forward(self, inputs):
         rgb_mean = inputs.contiguous().view(inputs.size()[:2] + (-1,)).mean(dim=-1).view(inputs.size()[:2] + (1, 1, 1,))

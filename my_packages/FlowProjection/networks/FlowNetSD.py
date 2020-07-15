@@ -4,8 +4,6 @@ from torch.nn import init
 
 from .submodules import conv, deconv, i_conv, predict_flow
 
-'Parameter count = 45,371,666'
-
 
 class FlowNetSD(nn.Module):
     def __init__(self, batchNorm=True):
@@ -57,7 +55,6 @@ class FlowNetSD(nn.Module):
                 if m.bias is not None:
                     init.uniform_(m.bias)
                 init.xavier_uniform_(m.weight)
-                # init_deconv_bilinear(m.weight)
         self.upsample1 = nn.Upsample(scale_factor=4, mode='bilinear')
 
     def forward(self, x):

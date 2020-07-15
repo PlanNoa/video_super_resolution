@@ -56,9 +56,6 @@ class MeanShift(nn.Conv2d):
 
 
 def get_valid_padding(kernel_size, dilation):
-    """
-    Padding value to remain feature size.
-    """
     kernel_size = kernel_size + (kernel_size - 1) * (dilation - 1)
     padding = (kernel_size - 1) // 2
     return padding
@@ -66,7 +63,6 @@ def get_valid_padding(kernel_size, dilation):
 
 def activation(act_type='relu', inplace=True, slope=0.2, n_prelu=1):
     act_type = act_type.lower()
-    layer = None
     if act_type == 'relu':
         layer = nn.ReLU(inplace)
     elif act_type == 'lrelu':
@@ -80,8 +76,6 @@ def activation(act_type='relu', inplace=True, slope=0.2, n_prelu=1):
 
 def norm(n_feature, norm_type='bn'):
     norm_type = norm_type.lower()
-
-    layer = None
     if norm_type == 'bn':
         layer = nn.BatchNorm2d(n_feature)
     else:
@@ -94,8 +88,6 @@ def pad(pad_type, padding):
     pad_type = pad_type.lower()
     if padding == 0:
         return None
-
-    layer = None
     if pad_type == 'reflect':
         layer = nn.ReflectionPad2d(padding)
     elif pad_type == 'replicate':

@@ -1,4 +1,3 @@
-# pytorch 0.4.0
 import torch
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
@@ -49,9 +48,6 @@ class FeedbackBlock(nn.Module):
         hr_features = []
         lr_features.append(x)
 
-        def tocpu(data):
-            return data.cpu()
-
         for idx in range(self.num_groups):
             LD_L = torch.cat(tuple(lr_features), 1)
             if idx > 0:
@@ -65,7 +61,7 @@ class FeedbackBlock(nn.Module):
             lr_features.append(LD_L)
         del hr_features
 
-        output = torch.cat(tuple(lr_features[1:]), 1)  # leave out input x, i.e. lr_features[0]
+        output = torch.cat(tuple(lr_features[1:]), 1)
         output = self.compress_out(output)
         self.last_hidden = output
         return output

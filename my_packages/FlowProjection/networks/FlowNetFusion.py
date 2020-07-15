@@ -3,8 +3,6 @@ import torch.nn as nn
 from torch.nn import init
 from .submodules import conv, deconv, i_conv, predict_flow
 
-'Parameter count = 581,226'
-
 
 class FlowNetFusion(nn.Module):
     def __init__(self, batchNorm=True):
@@ -40,7 +38,6 @@ class FlowNetFusion(nn.Module):
                 if m.bias is not None:
                     init.uniform_(m.bias)
                 init.xavier_uniform_(m.weight)
-                # init_deconv_bilinear(m.weight)
 
     def forward(self, x):
         out_conv0 = self.conv0(x)
