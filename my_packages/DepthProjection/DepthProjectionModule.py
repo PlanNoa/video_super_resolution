@@ -9,8 +9,6 @@ class DepthProjectionModule(nn.Module):
         self.model = HGModel("pretrained/best_generalization_net_G.pth")
 
     def forward(self, input):
-
         p = self.model(input)
         p = torch.squeeze(p[0])
-
         return p
