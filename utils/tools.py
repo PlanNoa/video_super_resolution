@@ -74,7 +74,7 @@ def save_checkpoint(state, is_best, path, prefix, filename='checkpoint.pth.tar')
 
 
 def maskprocess(mask):
-    return np.stack((mask,) * 3, axis=-1)
+    return torch.stack((mask,) * 3)
 
 
 def ToLabel(E):
