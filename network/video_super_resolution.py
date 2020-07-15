@@ -27,13 +27,12 @@ class VSR(torch.nn.Module):
             data_clone = data.clone()
             optical_flow = torch.stack([self.FlowModule(data_clone[0], data_clone[1]),
                                         self.FlowModule(data_clone[1], data_clone[2])])
-            # TODO: space for new depth map net
-            depth_map = torch.stack([self.FlowModule(data_clone[0], data_clone[1]),
-                                     self.FlowModule(data_clone[1], data_clone[2])])
+            depth_map = torch.stack([maskprocess(self.DepthModule(data_clone[0:2])),
+                                     maskprocess(self.DepthModule(data_clone[1:3]))])
+
             data_clone = transpose1323(data_clone)
 
             optical_flow = interpolate(transpose1323(optical_flow), data_shape)
-            depth_map = interpolate(transpose1323(depth_map), data_shape)
 
             estimated_image = interpolate(transpose1323(estimated_image), data_shape) \
                 if not isinstance(estimated_image, type(None)) else data_clone[0:1]
@@ -48,12 +47,11 @@ class VSR(torch.nn.Module):
 
             optical_flow = torch.stack([self.FlowModule(data_clone[0], data_clone[1]),
                                         self.FlowModule(data_clone[1], data_clone[2])])
-            # TODO: space for new depth map net
-            depth_map = torch.stack([self.FlowModule(data_clone[0], data_clone[1]),
-                                     self.FlowModule(data_clone[1], data_clone[2])])
+
+            depth_map = torch.stack([maskprocess(self.DepthModule(data_clone[0:2])),
+                                     maskprocess(self.DepthModule(data_clone[1:3]))])
 
             optical_flow = interpolate(transpose1323(optical_flow), data_shape)
-            depth_map = interpolate(transpose1323(depth_map), data_shape)
 
             VOSmask = maskprocess(self.VOSModule(data_clone[0], data_clone[1]))
 

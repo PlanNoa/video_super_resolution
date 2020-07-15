@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.nn.functional import interpolate
 from functools import reduce
 
 
@@ -23,6 +24,11 @@ class LambdaMap(LambdaBase):
 class LambdaReduce(LambdaBase):
     def forward(self, input):
         return reduce(self.lambda_func, self.forward_prepare(input))
+
+
+def coolAddTensors(x, y):
+    x = interpolate(x, y.shape[-2:])
+    return x + y
 
 
 pytorch_DIW_scratch = nn.Sequential(
@@ -524,7 +530,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                             nn.UpsamplingNearest2d(scale_factor=2),
                                                                         ),
                                                                         ),
-                                                              LambdaReduce(lambda x, y: x + y),  # CAddTable,
+                                                              LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
                                                           ),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
                                                                        # Concat,
@@ -593,7 +599,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                           nn.UpsamplingNearest2d(scale_factor=2),
                                                       ),
                                                       ),
-                                            LambdaReduce(lambda x, y: x + y),  # CAddTable,
+                                            LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
                                         ),
                                         LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
                                                      nn.Sequential(  # Sequential,
@@ -724,7 +730,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                      ),
                                     ),
                                     ),
-                          LambdaReduce(lambda x, y: x + y),  # CAddTable,
+                          LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
                       ),
                       LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
                                    nn.Sequential(  # Sequential,
@@ -825,7 +831,7 @@ pytorch_DIW_scratch = nn.Sequential(
                   ),
                   ),
 
-        LambdaReduce(lambda x, y: x + y),  # CAddTable,
+        LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
     ),
     nn.Conv2d(64, 1, (3, 3), (1, 1), (1, 1)),
 )
