@@ -9,7 +9,7 @@ from utils.object_utils import center_crop, interp_surgery
 
 
 class OSVOS(nn.Module):
-    def __init__(self):
+    def __init__(self, pretrained):
         super(OSVOS, self).__init__()
         lay_list = [[64, 64],
                     ['M', 128, 128],
@@ -42,7 +42,7 @@ class OSVOS(nn.Module):
 
         self.fuse = nn.Conv2d(64, 1, kernel_size=1, padding=0)
 
-        self._initialize_weights()
+        self._initialize_weights(pretrained)
 
     def forward(self, x):
         crop_h, crop_w = int(x.size()[-2]), int(x.size()[-1])
@@ -61,7 +61,7 @@ class OSVOS(nn.Module):
         side_out.append(out)
         return side_out
 
-    def _initialize_weights(self):
+    def _initialize_weights(self, pretrained):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 m.weight.data.normal_(0, 0.001)
@@ -77,7 +77,7 @@ class OSVOS(nn.Module):
                 m.weight.data.zero_()
                 m.weight.data = interp_surgery(m)
 
-        caffe_weights = scipy.io.loadmat('my_packages/VOSProjection/pretrained/vgg_caffe.mat')
+        caffe_weights = scipy.io.loadmat(pretrained)
         caffe_ind = 0
         for ind, layer in enumerate(self.stages.parameters()):
             if ind % 2 == 0:
