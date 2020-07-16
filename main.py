@@ -9,7 +9,7 @@ from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
 from utils import tools
-from utils.tools import MakeCuda, transpose1312, transpose1323
+from utils.tools import MakeCuda, transpose1312, transpose1323, transpose1201
 from utils.video_utils import VideoDataset
 
 
@@ -69,30 +69,26 @@ def ArgmentsParser():
 
 def InitalizingTrainingAndTestDataset(args):
     def InitalizingTrainingDataset(block):
-        if os.path.exists(args.training_dataset_root):
-            effective_batch_size = args.batch_size * args.number_gpus
+        if os.path.exists(args.training_dataset_root) and not args.skip_training:
             train_dataset = VideoDataset(args.training_dataset_root)
             block.log('Training Dataset: {}'.format(args.training_dataset_root))
             block.log('Training Input: {}'.format(np.array(train_dataset[0][0]).shape))
             block.log('Training Targets: {}'.format(train_dataset[0][0][1].shape))
-            train_loader = DataLoader(train_dataset, batch_size=effective_batch_size, shuffle=True)
-            return train_loader
+            return train_dataset
 
     def InitalizingValidationDataset(block):
-        if os.path.exists(args.validation_dataset_root):
-            effective_batch_size = args.batch_size * args.number_gpus
+        if os.path.exists(args.validation_dataset_root) and not args.skip_validation:
             validation_dataset = VideoDataset(args.validation_dataset_root)
             block.log('Validataion Dataset: {}'.format(args.validation_dataset_root))
             block.log('Validataion Input: {}'.format(np.array(validation_dataset[0][0]).shape))
             block.log('Validataion Targets: {}'.format(validation_dataset[0][0][1].shape))
-            validation_loader = DataLoader(validation_dataset, batch_size=effective_batch_size, shuffle=False)
-            return validation_loader
+            return validation_dataset
 
     with tools.TimerBlock("Initializing Datasets") as block:
-        train_loader = InitalizingTrainingDataset(block)
-        validation_loader = InitalizingValidationDataset(block)
+        train_dataset = InitalizingTrainingDataset(block)
+        validation_dataset = InitalizingValidationDataset(block)
 
-    return train_loader, validation_loader
+    return train_dataset, validation_dataset
 
 
 def BuildMainModelAndOptimizer(args):
@@ -150,41 +146,33 @@ def BuildMainModelAndOptimizer(args):
     return SRmodel, optimizer
 
 
-def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
+def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args):
     def MakeDataDatasetToTensor(datas):
-        data = torch.stack([torch.stack([transpose1312(interpolate(transpose1323(d).type(torch.float32),
-                                                                         (int(d.shape[1] / 4), int(d.shape[2] / 4))))
-                                         for d in dd]) for dd in datas]).squeeze()
+        data = torch.stack([transpose1312(interpolate(transpose1323(d.type(torch.float32)), (int(d.shape[1] / 4), int(d.shape[2] / 4)))) for d in datas])
         return data
 
     def MakeTargetDatasetToTensor(datas):
-        target = torch.stack([d[1] for d in datas]).type(torch.float32)
+        target = datas[:,1:2].type(torch.float32)
         return target
 
     def MakeHFDatasetToTensor(datas):
-        high_frames = torch.stack([torch.stack(d) for d in datas]).squeeze().type(torch.float32)
-        return high_frames
+        datas = datas.type(torch.float32)
+        return datas
 
-    def TrainMainModel(args, epoch, data_loader, model, optimizer, is_validate=False, offset=0):
+    def TrainMainModel(args, dataset, model, optimizer, is_validate=False):
         total_loss = 0
         fakeloss = MSELoss()
 
         if is_validate:
             model.eval()
-            title = 'Validating Epoch {}'.format(epoch)
             args.validation_n_batches = np.inf if args.validation_n_batches < 0 else args.validation_n_batches
-            progress = tqdm(tools.IteratorTimer(data_loader), ncols=100,
-                            total=np.minimum(len(data_loader), args.validation_n_batches), leave=True, position=offset,
-                            desc=title)
+
         else:
             model.train()
-            title = 'Training Epoch {}'.format(epoch)
             args.train_n_batches = np.inf if args.train_n_batches < 0 else args.train_n_batches
-            progress = tqdm(tools.IteratorTimer(data_loader), ncols=120,
-                            total=np.minimum(len(data_loader), args.train_n_batches), smoothing=.9, miniters=1,
-                            leave=True, position=offset, desc=title)
 
-        for batch_idx, datas in enumerate(progress):
+        for batch_idx in range(len(dataset)):
+            datas = torch.tensor(dataset[batch_idx])
             data = MakeDataDatasetToTensor(datas)
             target = MakeTargetDatasetToTensor(datas)
             high_frames = MakeHFDatasetToTensor(datas)
@@ -208,12 +196,8 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                     loss.backward()
                     optimizer.step()
 
-            title = '{} Epoch {}'.format('Validating' if is_validate else 'Training', epoch)
-            progress.set_description(title)
-
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
-                progress.close()
                 break
 
         return total_loss / float(batch_idx + 1), (batch_idx + 1)
@@ -226,18 +210,16 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
     best_err = 1e8
     progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100,
                     desc='Overall Progress', leave=True, position=True)
-    offset = 1
     global_iteration = 0
 
     for epoch in progress:
         if not args.skip_validation and ((epoch - 1) % args.validation_frequency) == 0:
-            validation_loss, _ = TrainMainModel(args=args, epoch=epoch - 1, data_loader=validation_loader,
-                                                model=SRmodel, optimizer=optimizer, is_validate=True, offset=offset)
-            offset += 1
+            validation_loss, _ = TrainMainModel(args=args, dataset=validation_dataset, model=SRmodel,
+                                                optimizer=optimizer, is_validate=True)
 
             best_err = SetBestErr(validation_loss, best_err)
 
-            checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
+            checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint')
             tools.save_checkpoint({'arch': args.model_name,
                                    'epoch': epoch,
                                    'state_dict': SRmodel.model.state_dict(),
@@ -246,16 +228,14 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
                                   False, args.save, args.model_name)
             checkpoint_progress.update(1)
             checkpoint_progress.close()
-            offset += 1
 
         if not args.skip_training:
-            train_loss, iterations = TrainMainModel(args=args, epoch=epoch, data_loader=train_loader, model=SRmodel,
-                                                    optimizer=optimizer, offset=offset)
+            train_loss, iterations = TrainMainModel(args=args, dataset=train_dataset, model=SRmodel,
+                                                    optimizer=optimizer)
             global_iteration += iterations
-            offset += 1
 
             if ((epoch - 1) % args.validation_frequency) == 0:
-                checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint', position=offset)
+                checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint')
                 tools.save_checkpoint({'arch': args.model_name,
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
@@ -268,9 +248,9 @@ def TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args):
 
 def main():
     args = ArgmentsParser()
-    train_loader, validation_loader = InitalizingTrainingAndTestDataset(args)
+    train_dataset, validation_dataset = InitalizingTrainingAndTestDataset(args)
     SRmodel, optimizer = BuildMainModelAndOptimizer(args)
-    TrainAllProgress(SRmodel, optimizer, train_loader, validation_loader, args)
+    TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args)
 
 
 if __name__ == '__main__':
