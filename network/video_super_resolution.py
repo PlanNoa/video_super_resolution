@@ -78,4 +78,5 @@ class VSR(torch.nn.Module):
             genFlow_loss = self.Flow_loss(outputs)
             masked_object = self.loss4object(outputs)
             objFlow_loss = self.Flow_loss(masked_object)
-            return torch.tensor([genSR_loss, objSR_loss, genFlow_loss, objFlow_loss])
+            loss = genSR_loss.data + objSR_loss.data + 0.006 * genFlow_loss.data + 0.006 * objFlow_loss.data
+            return loss.cpu()

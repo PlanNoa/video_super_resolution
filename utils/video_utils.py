@@ -7,9 +7,10 @@ from torch.utils.data import Dataset
 class VideoDataset(Dataset):
     def __init__(self, path):
         self.video_paths = glob(os.path.join(path, '*'))
+        self.data = []
 
     def __len__(self):
-        return len(self.video_paths)
+        return len(self.video_paths) * 101
 
     def read_video(self, file):
         imgs = []
@@ -20,7 +21,12 @@ class VideoDataset(Dataset):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             imgs.append(img)
         data = [imgs[i:i + 3] for i in range(len(imgs) - 2)]
-        return data
+        for i in range(0, length, int(length/100)):
+            self.data.append(data[i:i+int(length/100)])
 
     def __getitem__(self, idx):
-        return self.read_video(self.video_paths[idx])
+        if idx % 101 == 0:
+            self.read_video(self.video_paths[idx//101])
+        data = self.data[0]
+        self.data = self.data[1:]
+        return data
