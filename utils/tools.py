@@ -115,6 +115,14 @@ def transpose1201(x):
     return x.transpose(1, 2).transpose(0, 1)
 
 
+def transpose030112(x):
+    return x.transpose(0, 3).transpose(0, 1).transpose(1, 2)
+
+
+def transpose031323(x):
+    return x.transpose(0, 3).transpose(1, 3).transpose(2, 3)
+
+
 import time, os, shutil, torch
 import numpy as np
 from collections import OrderedDict

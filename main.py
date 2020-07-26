@@ -9,7 +9,7 @@ from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
 from utils import tools
-from utils.tools import MakeCuda, transpose1312, transpose1323, transpose1201
+from utils.tools import MakeCuda, transpose1312, transpose1323, transpose1201, get_gpu_usage
 from utils.video_utils import VideoDataset
 
 
@@ -160,7 +160,6 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
         return datas
 
     def TrainMainModel(args, dataset, model, optimizer, is_validate=False):
-        total_loss = 0
         fakeloss = MSELoss()
 
         if is_validate:
@@ -176,6 +175,7 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
             data = MakeDataDatasetToTensor(datas)
             target = MakeTargetDatasetToTensor(datas)
             high_frames = MakeHFDatasetToTensor(datas)
+            total_loss = []
 
             if args.cuda_available:
                 data = MakeCuda(data)
@@ -183,31 +183,28 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                 high_frames = MakeCuda(high_frames)
 
             estimated_image = None
-            for x, y, high_frame in zip(data, target, high_frames):
-                optimizer.zero_grad() if not is_validate else None
-                output, losses = model(x, y, high_frame, estimated_image)
-                estimated_image = output
-                loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
-                loss_val = torch.mean(losses)
-                total_loss += loss_val.item()
-                loss.data = loss_val.data
 
-                if not is_validate:
-                    loss.backward()
-                    optimizer.step()
+            optimizer.zero_grad() if not is_validate else None
+
+            for x, y, high_frame in zip(data, target, high_frames):
+                with torch.no_grad():
+                    output, real_loss = model(x, y, high_frame, estimated_image)
+                    estimated_image = output
+                    total_loss.append(real_loss.data)
+            output, real_loss = model(x, y, high_frame, estimated_image)
+
+            if not is_validate:
+                loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
+                loss.data = sum(total_loss)/len(total_loss)
+                loss.backward()
+                optimizer.step()
 
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
                 break
 
-        return total_loss / float(batch_idx + 1), (batch_idx + 1)
+        return sum(total_loss) / float(batch_idx + 1), (batch_idx + 1)
 
-    def SetBestErr(loss, best_err):
-        if loss < best_err:
-            best_err = loss
-        return best_err
-
-    best_err = 1e8
     progress = tqdm(list(range(args.start_epoch, args.total_epochs + 1)), miniters=1, ncols=100,
                     desc='Overall Progress', leave=True, position=True)
     global_iteration = 0
@@ -217,13 +214,10 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
             validation_loss, _ = TrainMainModel(args=args, dataset=validation_dataset, model=SRmodel,
                                                 optimizer=optimizer, is_validate=True)
 
-            best_err = SetBestErr(validation_loss, best_err)
-
             checkpoint_progress = tqdm(ncols=100, desc='Saving Checkpoint')
             tools.save_checkpoint({'arch': args.model_name,
                                    'epoch': epoch,
                                    'state_dict': SRmodel.model.state_dict(),
-                                   'best_EPE': best_err,
                                    'optimizer': optimizer},
                                   False, args.save, args.model_name)
             checkpoint_progress.update(1)
@@ -239,7 +233,6 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                 tools.save_checkpoint({'arch': args.model_name,
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
-                                       'best_EPE': train_loss,
                                        'optimizer': optimizer},
                                       False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)

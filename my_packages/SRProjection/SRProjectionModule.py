@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from .blocks import ConvBlock, DeconvBlock, MeanShift
+from utils.tools import transpose030112, transpose031323
 
 
 class FeedbackBlock(nn.Module):
@@ -48,6 +49,9 @@ class FeedbackBlock(nn.Module):
         hr_features = []
         lr_features.append(x)
 
+        def tocpu(data):
+            return data.cpu()
+
         for idx in range(self.num_groups):
             LD_L = torch.cat(tuple(lr_features), 1)
             if idx > 0:
@@ -61,7 +65,7 @@ class FeedbackBlock(nn.Module):
             lr_features.append(LD_L)
         del hr_features
 
-        output = torch.cat(tuple(lr_features[1:]), 1)
+        output = torch.cat(tuple(lr_features[1:]), 1)  # leave out input x, i.e. lr_features[0]
         output = self.compress_out(output)
         self.last_hidden = output
         return output
@@ -71,7 +75,7 @@ class FeedbackBlock(nn.Module):
 
 
 class SRProjectionModule(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=12, upscale_factor=4, num_steps=1, num_groups=2,
+    def __init__(self, in_channels=3, out_channels=3, num_features=64, upscale_factor=4, num_steps=1, num_groups=1,
                  act_type='prelu', norm_type=None):
         super(SRProjectionModule, self).__init__()
 
@@ -100,6 +104,13 @@ class SRProjectionModule(nn.Module):
                                   act_type=None, norm_type=norm_type)
         self.add_mean = MeanShift(rgb_mean, rgb_std, 1)
 
+        self.fc = nn.Sequential(
+            nn.Linear(8, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1),
+            nn.ReLU()
+        )
+
     def forward(self, x):
         self._reset_state()
         x = self.sub_mean(x)
@@ -112,7 +123,7 @@ class SRProjectionModule(nn.Module):
             h = torch.add(inter_res, self.conv_out(self.out(h)))
             h = self.add_mean(h)
             outs.append(h)
-        outs = torch.stack([torch.mean(out, 0) for out in outs], 0)
+        outs = torch.stack([transpose031323(self.fc(transpose030112(out))).squeeze() for out in outs], 0)
         return outs
 
     def _reset_state(self):
