@@ -10,7 +10,7 @@ class VideoDataset(Dataset):
         self.data = []
 
     def __len__(self):
-        return len(self.video_paths) * 51
+        return len(self.video_paths) * 11
 
     def read_video(self, file):
         imgs = []
@@ -21,12 +21,12 @@ class VideoDataset(Dataset):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             imgs.append(img)
         data = [imgs[i:i + 3] for i in range(len(imgs) - 2)]
-        for i in range(0, length, int(length/50)):
-            self.data.append(data[i:i+int(length/50)])
+        for i in range(0, length, int(length/10)):
+            self.data.append(data[i:i+int(length/10)])
 
     def __getitem__(self, idx):
-        if idx % 51 == 0:
-            self.read_video(self.video_paths[idx//51])
+        if idx % 11 == 0:
+            self.read_video(self.video_paths[idx//11])
         data = self.data[0]
         self.data = self.data[1:]
         return data

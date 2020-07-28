@@ -193,11 +193,13 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                     total_loss.append(real_loss.data)
             output, real_loss = model(x, y, high_frame, estimated_image)
 
+
             if not is_validate:
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
                 loss.data = sum(total_loss)/len(total_loss)
                 loss.backward()
                 optimizer.step()
+                print(loss)
 
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):

@@ -1,10 +1,3 @@
-import os
-import time
-import shutil
-import torch
-import numpy as np
-
-
 class StaticCenterCrop(object):
     def __init__(self, image_size, crop_size):
         self.th, self.tw = crop_size
