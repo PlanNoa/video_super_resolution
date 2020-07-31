@@ -20,6 +20,7 @@ def ArgmentsParser():
     parser.add_argument('--total_epochs', type=int, default=10000)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--train_n_batches', type=int, default=100)
+    parser.add_argument('--lr', type=float, default=0.001)
 
     parser.add_argument('--number_gpus', '-ng', type=int, default=-1, help='number of GPUs to use')
     parser.add_argument('--no_cuda', action='store_true')
@@ -129,7 +130,7 @@ def BuildMainModelAndOptimizer(args):
             optimizer = checkpoint['optimizer']
             block.log("Loaded checkpoint '{}'".format(args.resume))
         else:
-            optimizer = torch.optim.Adam(SRmodel.parameters())
+            optimizer = torch.optim.Adam(SRmodel.parameters(), lr=args.lr)
             block.log("Random initialization")
         return optimizer
 
@@ -160,6 +161,12 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
         return datas
 
     def TrainMainModel(args, dataset, model, optimizer, is_validate=False):
+
+        old_state_dict = {}
+        for key in model.state_dict():
+            old_state_dict[key] = model.state_dict()[key].clone()
+
+
         fakeloss = MSELoss()
 
         if is_validate:
@@ -170,12 +177,13 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
             model.train()
             args.train_n_batches = np.inf if args.train_n_batches < 0 else args.train_n_batches
 
+        total_loss = []
+
         for batch_idx in range(len(dataset)):
             datas = torch.tensor(dataset[batch_idx])
             data = MakeDataDatasetToTensor(datas)
             target = MakeTargetDatasetToTensor(datas)
             high_frames = MakeHFDatasetToTensor(datas)
-            total_loss = []
 
             if args.cuda_available:
                 data = MakeCuda(data)
@@ -191,15 +199,31 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                     output, real_loss = model(x, y, high_frame, estimated_image)
                     estimated_image = output
                     total_loss.append(real_loss.data)
-            output, real_loss = model(x, y, high_frame, estimated_image)
 
+            if not is_validate and batch_idx % 16 == 0 and epoch > 0:
 
-            if not is_validate:
+                output, real_loss = model(x, y, high_frame, estimated_image)
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
                 loss.data = sum(total_loss)/len(total_loss)
                 loss.backward()
                 optimizer.step()
                 print(loss)
+
+                new_state_dict = {}
+                for key in model.state_dict():
+                    new_state_dict[key] = model.state_dict()[key].clone()
+
+                c = 0
+                for key in old_state_dict:
+                    if not (old_state_dict[key] == new_state_dict[key]).all():
+                        c += 1
+                print("Training {}".format(str(c)))
+
+                old_state_dict = {}
+                for key in model.state_dict():
+                    old_state_dict[key] = model.state_dict()[key].clone()
+
+                total_loss = []
 
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
@@ -236,7 +260,7 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
                                        'optimizer': optimizer},
-                                      False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
+                                      False, args.save, args.model_name+str(epoch), filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 

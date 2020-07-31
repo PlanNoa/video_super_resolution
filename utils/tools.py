@@ -1,3 +1,10 @@
+import time, os, shutil, torch
+import numpy as np
+from collections import OrderedDict
+import subprocess
+import xml.etree.ElementTree
+
+
 class StaticCenterCrop(object):
     def __init__(self, image_size, crop_size):
         self.th, self.tw = crop_size
@@ -116,12 +123,6 @@ def transpose031323(x):
     return x.transpose(0, 3).transpose(1, 3).transpose(2, 3)
 
 
-import time, os, shutil, torch
-import numpy as np
-from collections import OrderedDict
-import subprocess
-import xml.etree.ElementTree
-
 def get_gpu_usage():
 
     def extract(elem, tag, drop_s):
@@ -145,4 +146,4 @@ def get_gpu_usage():
     d["mem_used"] = extract(gpu.find("fb_memory_usage"), "used", "MiB")
     d["mem_used_per"] = d["mem_used"] * 100 / 11171
 
-    print('\n\nGPU utilization: %s %%\nVRAM used: %s %%\n\n' % (d["gpu_util"],d["mem_used_per"]))
+    print('\nGPU utilization: %s %%\nVRAM used: %s %%' % (d["gpu_util"],d["mem_used_per"]))
