@@ -1,7 +1,5 @@
 import numpy as np
 
-TAG_CHAR = np.array([202021.25], np.float32)
-
 
 def flow2img(flow_data):
     u = flow_data[:, :, 0]
