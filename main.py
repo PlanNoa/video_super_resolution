@@ -200,7 +200,7 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                     estimated_image = output
                     total_loss.append(real_loss.data)
 
-            if not is_validate and batch_idx % 16 == 0 and epoch > 0:
+            if not is_validate and batch_idx % dataset.splitvideonum == 0 and batch_idx > 0:
 
                 output, real_loss = model(x, y, high_frame, estimated_image)
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
@@ -208,22 +208,6 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                 loss.backward()
                 optimizer.step()
                 print(loss)
-
-                new_state_dict = {}
-                for key in model.state_dict():
-                    new_state_dict[key] = model.state_dict()[key].clone()
-
-                c = 0
-                for key in old_state_dict:
-                    if not (old_state_dict[key] == new_state_dict[key]).all():
-                        c += 1
-                print("Training {}".format(str(c)))
-
-                old_state_dict = {}
-                for key in model.state_dict():
-                    old_state_dict[key] = model.state_dict()[key].clone()
-
-                total_loss = []
 
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
