@@ -244,7 +244,7 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                                        'epoch': epoch,
                                        'state_dict': SRmodel.model.state_dict(),
                                        'optimizer': optimizer},
-                                      False, args.save, args.model_name+str(epoch), filename='train-checkpoint.pth.tar')
+                                      False, args.save, args.model_name, filename='train-checkpoint.pth.tar')
                 checkpoint_progress.update(1)
                 checkpoint_progress.close()
 
