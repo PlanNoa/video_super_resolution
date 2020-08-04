@@ -4,12 +4,11 @@ import argparse
 import torch
 import numpy as np
 from tqdm import tqdm
-from torch.utils.data import DataLoader
 from torch.nn import MSELoss
 from torch.nn.functional import interpolate
 from network.video_super_resolution import VSR
 from utils import tools
-from utils.tools import MakeCuda, transpose1312, transpose1323, transpose1201, get_gpu_usage
+from utils.tools import MakeCuda, transpose1312, transpose1323
 from utils.video_utils import VideoDataset
 
 
@@ -21,6 +20,7 @@ def ArgmentsParser():
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--train_n_batches', type=int, default=100)
     parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--load_optimizer', action='store_true')
 
     parser.add_argument('--number_gpus', '-ng', type=int, default=-1, help='number of GPUs to use')
     parser.add_argument('--no_cuda', action='store_true')
@@ -126,7 +126,7 @@ def BuildMainModelAndOptimizer(args):
             os.makedirs(args.save)
 
     def BuildOptimizer(checkpoint, args, block):
-        if checkpoint:
+        if checkpoint and args.load_optimizer:
             optimizer = checkpoint['optimizer']
             block.log("Loaded checkpoint '{}'".format(args.resume))
         else:
@@ -162,11 +162,6 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
 
     def TrainMainModel(args, dataset, model, optimizer, is_validate=False):
 
-        old_state_dict = {}
-        for key in model.state_dict():
-            old_state_dict[key] = model.state_dict()[key].clone()
-
-
         fakeloss = MSELoss()
 
         if is_validate:
@@ -178,8 +173,10 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
             args.train_n_batches = np.inf if args.train_n_batches < 0 else args.train_n_batches
 
         total_loss = []
+        progress = tqdm(list(range(0, len(dataset))), miniters=1, ncols=100,
+                    desc='Overall Progress', leave=True, position=True)
 
-        for batch_idx in range(len(dataset)):
+        for batch_idx in progress:
             datas = torch.tensor(dataset[batch_idx])
             data = MakeDataDatasetToTensor(datas)
             target = MakeTargetDatasetToTensor(datas)
@@ -191,7 +188,6 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                 high_frames = MakeCuda(high_frames)
 
             estimated_image = None
-
             optimizer.zero_grad() if not is_validate else None
 
             for x, y, high_frame in zip(data, target, high_frames):
@@ -208,6 +204,8 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                 loss.backward()
                 optimizer.step()
                 print(loss)
+
+                total_loss = []
 
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
