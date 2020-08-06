@@ -127,7 +127,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -136,13 +136,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.ReLU(),
                                                      ),
                                                      ),
-                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                                     nn.Sequential(  # Sequential,
+                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 64, (1, 1)),
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -150,7 +150,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -158,7 +158,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -167,17 +167,17 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.ReLU(),
                                                      ),
                                                      ),
-                                        nn.Sequential(  # Sequential,
-                                            LambdaMap(lambda x: x,  # ConcatTable,
-                                                      nn.Sequential(  # Sequential,
+                                        nn.Sequential(  
+                                            LambdaMap(lambda x: x,  
+                                                      nn.Sequential(  
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -185,7 +185,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -193,7 +193,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -203,13 +203,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                        ),
                                                                        ),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -217,7 +217,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -225,7 +225,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -235,16 +235,16 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                        ),
                                                                        ),
                                                       ),
-                                                      nn.Sequential(  # Sequential,
+                                                      nn.Sequential(  
                                                           nn.AvgPool2d((2, 2), (2, 2)),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -252,7 +252,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -260,7 +260,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -270,13 +270,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                        ),
                                                                        ),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -284,7 +284,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -292,7 +292,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -301,20 +301,20 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.ReLU(),
                                                                        ),
                                                                        ),
-                                                          nn.Sequential(  # Sequential,
-                                                              LambdaMap(lambda x: x,  # ConcatTable,
-                                                                        nn.Sequential(  # Sequential,
+                                                          nn.Sequential(  
+                                                              LambdaMap(lambda x: x,  
+                                                                        nn.Sequential(  
                                                                             LambdaReduce(
                                                                                 lambda x, y, dim=1: torch.cat((x, y),
                                                                                                               dim),
-                                                                                # Concat,
-                                                                                nn.Sequential(  # Sequential,
+                                                                                
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 64, (1, 1)),
                                                                                     nn.BatchNorm2d(64, 1e-05, 0.1,
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -325,7 +325,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -336,7 +336,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -351,14 +351,14 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                             LambdaReduce(
                                                                                 lambda x, y, dim=1: torch.cat((x, y),
                                                                                                               dim),
-                                                                                # Concat,
-                                                                                nn.Sequential(  # Sequential,
+                                                                                
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 64, (1, 1)),
                                                                                     nn.BatchNorm2d(64, 1e-05, 0.1,
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -369,7 +369,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -380,7 +380,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -393,19 +393,19 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                 ),
                                                                             ),
                                                                         ),
-                                                                        nn.Sequential(  # Sequential,
+                                                                        nn.Sequential(  
                                                                             nn.AvgPool2d((2, 2), (2, 2)),
                                                                             LambdaReduce(
                                                                                 lambda x, y, dim=1: torch.cat((x, y),
                                                                                                               dim),
-                                                                                # Concat,
-                                                                                nn.Sequential(  # Sequential,
+                                                                                
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 64, (1, 1)),
                                                                                     nn.BatchNorm2d(64, 1e-05, 0.1,
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -416,7 +416,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -427,7 +427,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -442,14 +442,14 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                             LambdaReduce(
                                                                                 lambda x, y, dim=1: torch.cat((x, y),
                                                                                                               dim),
-                                                                                # Concat,
-                                                                                nn.Sequential(  # Sequential,
+                                                                                
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 64, (1, 1)),
                                                                                     nn.BatchNorm2d(64, 1e-05, 0.1,
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -460,7 +460,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -471,7 +471,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -486,14 +486,14 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                             LambdaReduce(
                                                                                 lambda x, y, dim=1: torch.cat((x, y),
                                                                                                               dim),
-                                                                                # Concat,
-                                                                                nn.Sequential(  # Sequential,
+                                                                                
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 64, (1, 1)),
                                                                                     nn.BatchNorm2d(64, 1e-05, 0.1,
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -504,7 +504,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -515,7 +515,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                                                    False),
                                                                                     nn.ReLU(),
                                                                                 ),
-                                                                                nn.Sequential(  # Sequential,
+                                                                                nn.Sequential(  
                                                                                     nn.Conv2d(256, 32, (1, 1)),
                                                                                     nn.BatchNorm2d(32, 1e-05, 0.1,
                                                                                                    False),
@@ -530,16 +530,16 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                             nn.UpsamplingNearest2d(scale_factor=2),
                                                                         ),
                                                                         ),
-                                                              LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
+                                                              LambdaReduce(lambda x, y: coolAddTensors(x, y)),  
                                                           ),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -547,7 +547,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -555,7 +555,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 32, (1, 1)),
                                                                            nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -565,13 +565,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                        ),
                                                                        ),
                                                           LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),
-                                                                       # Concat,
-                                                                       nn.Sequential(  # Sequential,
+                                                                       
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -579,7 +579,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -587,7 +587,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
                                                                        ),
-                                                                       nn.Sequential(  # Sequential,
+                                                                       nn.Sequential(  
                                                                            nn.Conv2d(256, 64, (1, 1)),
                                                                            nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                                            nn.ReLU(),
@@ -599,15 +599,15 @@ pytorch_DIW_scratch = nn.Sequential(
                                                           nn.UpsamplingNearest2d(scale_factor=2),
                                                       ),
                                                       ),
-                                            LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
+                                            LambdaReduce(lambda x, y: coolAddTensors(x, y)),  
                                         ),
-                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                                     nn.Sequential(  # Sequential,
+                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 64, (1, 1)),
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -615,7 +615,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -623,7 +623,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -632,13 +632,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.ReLU(),
                                                      ),
                                                      ),
-                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                                     nn.Sequential(  # Sequential,
+                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -646,7 +646,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -654,7 +654,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(256, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -665,14 +665,14 @@ pytorch_DIW_scratch = nn.Sequential(
                                                      ),
                                         nn.UpsamplingNearest2d(scale_factor=2),
                                     ),
-                                    nn.Sequential(  # Sequential,
-                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                                     nn.Sequential(  # Sequential,
+                                    nn.Sequential(  
+                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -680,7 +680,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -688,7 +688,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -697,13 +697,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.ReLU(),
                                                      ),
                                                      ),
-                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                                     nn.Sequential(  # Sequential,
+                                        LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 32, (1, 1)),
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 64, (1, 1)),
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -711,7 +711,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 64, (1, 1)),
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -719,7 +719,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                                          nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                                          nn.ReLU(),
                                                      ),
-                                                     nn.Sequential(  # Sequential,
+                                                     nn.Sequential(  
                                                          nn.Conv2d(128, 64, (1, 1)),
                                                          nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                                          nn.ReLU(),
@@ -730,15 +730,15 @@ pytorch_DIW_scratch = nn.Sequential(
                                                      ),
                                     ),
                                     ),
-                          LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
+                          LambdaReduce(lambda x, y: coolAddTensors(x, y)),  
                       ),
-                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                   nn.Sequential(  # Sequential,
+                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 32, (1, 1)),
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -746,7 +746,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -754,7 +754,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -763,13 +763,13 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.ReLU(),
                                    ),
                                    ),
-                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                   nn.Sequential(  # Sequential,
+                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 16, (1, 1)),
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 32, (1, 1)),
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -777,7 +777,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 32, (1, 1)),
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -785,7 +785,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 32, (1, 1)),
                                        nn.BatchNorm2d(32, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -796,14 +796,14 @@ pytorch_DIW_scratch = nn.Sequential(
                                    ),
                       nn.UpsamplingNearest2d(scale_factor=2),
                   ),
-                  nn.Sequential(  # Sequential,
-                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  # Concat,
-                                   nn.Sequential(  # Sequential,
+                  nn.Sequential(  
+                      LambdaReduce(lambda x, y, dim=1: torch.cat((x, y), dim),  
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 16, (1, 1)),
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -811,7 +811,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -819,7 +819,7 @@ pytorch_DIW_scratch = nn.Sequential(
                                        nn.BatchNorm2d(16, 1e-05, 0.1, False),
                                        nn.ReLU(),
                                    ),
-                                   nn.Sequential(  # Sequential,
+                                   nn.Sequential(  
                                        nn.Conv2d(128, 64, (1, 1)),
                                        nn.BatchNorm2d(64, 1e-05, 0.1, False),
                                        nn.ReLU(),
@@ -831,7 +831,7 @@ pytorch_DIW_scratch = nn.Sequential(
                   ),
                   ),
 
-        LambdaReduce(lambda x, y: coolAddTensors(x, y)),  # CAddTable,
+        LambdaReduce(lambda x, y: coolAddTensors(x, y)),  
     ),
     nn.Conv2d(64, 1, (3, 3), (1, 1), (1, 1)),
 )

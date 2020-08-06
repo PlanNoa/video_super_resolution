@@ -39,8 +39,6 @@ class VSR(torch.nn.Module):
 
             input = torch.cat((data_clone, optical_flow, depth_map, estimated_image), 0)
             output = self.model(input).cuda()
-            # output shape: [1, 3, y, x]
-
 
             data_clone = transpose1223(torch.stack([estimated_image[0],
                                                     interpolate(output, data_shape)[0], data_clone[2]]))
