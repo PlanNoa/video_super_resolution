@@ -32,6 +32,9 @@ class FeedbackBlock(nn.Module):
                 self.downtranBlocks.append(ConvBlock(num_features * (idx + 1), num_features,
                                                      kernel_size=1, stride=1,
                                                      act_type=act_type, norm_type=norm_type))
+
+        self.num_features = num_features
+
         self.compress_out = ConvBlock(num_groups * num_features, num_features,
                                       kernel_size=1,
                                       act_type=act_type, norm_type=norm_type)
@@ -48,47 +51,33 @@ class FeedbackBlock(nn.Module):
         lr_features = []
         hr_features = []
         lr_features.append(x)
-
         for idx in range(self.num_groups):
-
             lr_feature_size = list(lr_features[0].shape)
-            lr_feature_size[1] *= (idx+1)
+            lr_feature_size[1] *= (idx + 1)
             LD_L = torch.empty(*lr_feature_size)
             for i in range(idx):
-                LD_L[:, 64*idx:64*(idx+1), :, :] = lr_features[i]
+                LD_L[:, self.num_features * idx:self.num_features * (idx + 1), :, :] = lr_features[i]
 
-            try:
-                LD_L = LD_L.cuda()
-                if idx > 0:
-                    LD_L = self.uptranBlocks[idx - 1](LD_L)
-                LD_H = self.upBlocks[idx](LD_L)
-                hr_features.append(LD_H)
-            except:
-                if idx > 0:
-                    LD_L = self.uptranBlocks[idx - 1].cpu()(LD_L.cpu())
-                LD_H = self.upBlocks[idx].cpu()(LD_L)
-                hr_features.append(LD_H.cuda())
+            LD_L = LD_L.cuda()
+            if idx > 0:
+                LD_L = self.uptranBlocks[idx - 1](LD_L)
+            LD_H = self.upBlocks[idx](LD_L)
+            hr_features.append(LD_H)
 
             # LD_L.cpu()
             torch.cuda.empty_cache()
 
             hr_feature_size = list(hr_features[0].shape)
-            hr_feature_size[1] *= (idx+1)
+            hr_feature_size[1] *= (idx + 1)
             LD_H = torch.empty(*hr_feature_size)
             for i in range(idx):
-                LD_H[:, 64*idx:64*(idx+1), :, :] = hr_features[i]
+                LD_H[:, self.num_features * idx:self.num_features * (idx + 1), :, :] = hr_features[i]
 
-            try:
-                LD_H = LD_H.cuda()
-                if idx > 0:
-                    LD_H = self.downtranBlocks[idx - 1](LD_H)
-                LD_L = self.downBlocks[idx](LD_H)
-                lr_features.append(LD_L)
-            except:
-                if idx > 0:
-                    LD_H = self.downtranBlocks[idx - 1].cpu()(LD_H.cpu())
-                LD_L = self.downBlocks[idx].cpu()(LD_H)
-                lr_features.append(LD_L.cuda())
+            LD_H = LD_H.cuda()
+            if idx > 0:
+                LD_H = self.downtranBlocks[idx - 1](LD_H)
+            LD_L = self.downBlocks[idx](LD_H)
+            lr_features.append(LD_L)
 
             # LD_H.cpu()
             torch.cuda.empty_cache()
@@ -105,7 +94,7 @@ class FeedbackBlock(nn.Module):
 
 
 class SRProjectionModule(nn.Module):
-    def __init__(self, in_channels=3, out_channels=3, num_features=64, upscale_factor=4, num_steps=1, num_groups=6,
+    def __init__(self, in_channels=3, out_channels=3, num_features=32, upscale_factor=4, num_steps=3, num_groups=6,
                  act_type='prelu', norm_type=None):
         super(SRProjectionModule, self).__init__()
 
@@ -142,6 +131,7 @@ class SRProjectionModule(nn.Module):
         )
 
     def forward(self, x):
+        import time
         self._reset_state()
         x = self.sub_mean(x)
         inter_res = nn.functional.interpolate(x, scale_factor=self.upscale_factor, mode='bilinear', align_corners=False)
