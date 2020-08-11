@@ -21,6 +21,7 @@ def ArgmentsParser():
     parser.add_argument('--train_n_batches', type=int, default=100)
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--load_optimizer', action='store_true')
+    parser.add_argument('--load_lr', action='store_true')
 
     parser.add_argument('--number_gpus', '-ng', type=int, default=-1, help='number of GPUs to use')
     parser.add_argument('--no_cuda', action='store_true')
@@ -128,6 +129,9 @@ def BuildMainModelAndOptimizer(args):
     def BuildOptimizer(checkpoint, args, block):
         if checkpoint and args.load_optimizer:
             optimizer = checkpoint['optimizer']
+            if not args.load_lr:
+                optimizer.param_groups[0]['lr'] = args.lr
+                block.log("Set learning rate '{}'".format(args.lr))
             block.log("Loaded checkpoint '{}'".format(args.resume))
         else:
             optimizer = torch.optim.Adam(SRmodel.parameters(), lr=args.lr)
@@ -149,11 +153,13 @@ def BuildMainModelAndOptimizer(args):
 
 def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args):
     def MakeDataDatasetToTensor(datas):
-        data = torch.stack([transpose1312(interpolate(transpose1323(d.type(torch.float32)), (int(d.shape[1] / 4), int(d.shape[2] / 4)))) for d in datas])
+        data = torch.stack([transpose1312(
+            interpolate(transpose1323(d.type(torch.float32)), (int(d.shape[1] / 4), int(d.shape[2] / 4)))) for d in
+                            datas])
         return data
 
     def MakeTargetDatasetToTensor(datas):
-        target = datas[:,1:2].type(torch.float32)
+        target = datas[:, 1:2].type(torch.float32)
         return target
 
     def MakeHFDatasetToTensor(datas):
@@ -174,7 +180,7 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
 
         total_loss = []
         progress = tqdm(list(range(0, len(dataset))), miniters=1, ncols=100,
-                    desc='Overall Progress', leave=True, position=True)
+                        desc='Overall Progress', leave=True, position=True)
 
         for batch_idx in progress:
             datas = torch.tensor(dataset[batch_idx])
@@ -197,10 +203,9 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
                     total_loss.append(real_loss.data)
 
             if not is_validate and batch_idx % dataset.splitvideonum == 0 and batch_idx > 0:
-
                 output, real_loss = model(x, y, high_frame, estimated_image)
                 loss = fakeloss(output.cpu(), torch.tensor(target, dtype=torch.float32).cpu())
-                loss.data = sum(total_loss)/len(total_loss)
+                loss.data = sum(total_loss) / len(total_loss)
                 loss.backward()
                 optimizer.step()
                 print(loss)
@@ -210,6 +215,8 @@ def TrainAllProgress(SRmodel, optimizer, train_dataset, validation_dataset, args
             if (is_validate and (batch_idx == args.validation_n_batches)) or \
                     ((not is_validate) and (batch_idx == (args.train_n_batches))):
                 break
+
+        progress.close()
 
         return sum(total_loss) / float(batch_idx + 1), (batch_idx + 1)
 
