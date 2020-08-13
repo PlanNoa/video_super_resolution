@@ -131,7 +131,6 @@ class SRProjectionModule(nn.Module):
         )
 
     def forward(self, x):
-        import time
         self._reset_state()
         x = self.sub_mean(x)
         inter_res = nn.functional.interpolate(x, scale_factor=self.upscale_factor, mode='bilinear', align_corners=False)
